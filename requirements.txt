@@ -1,0 +1,12 @@
+ffmpeg
+jupyter-book
+jupyterlab
+numpy
+matplotlib
+librosa
+nussl
+scaper
+soxbindings
+numpydoc
+pyloudnorm
+gradio
