@@ -291,5 +291,8 @@ if __name__ == "__main__":
     for i in range(3):
         item = on_the_fly[i]
         mix = item['mix']
-        plt.plot(mix)
-        sources = item['sources']
+        print(mix)
+        mix.write_audio_to_file('./mix.wav')
+        sources = item['sources']['vocals']
+        print(sources)
+        sources.write_audio_to_file('./vocals.wav')
