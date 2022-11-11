@@ -249,7 +249,7 @@ if __name__ == "__main__":
     # only need to run download_musdb18() once
     fg_folder = '~/.nussl/ismir2020-tutorial/foreground'
     bg_folder = '~/.nussl/ismir2020-tutorial/background'
-    # musdb = download_musdb18(fg_folder, bg_folder)
+    musdb = download_musdb18(fg_folder, bg_folder)
 
     # Create a template of probabilistic event parameters
     template_event_parameters = {
