@@ -1,12 +1,14 @@
 from common import data
 import nussl
 import torch
+import tqdm
 from nussl.datasets import transforms as nussl_tfm
 from common.models import MaskInference
 from common import utils, data
 from pathlib import Path
 from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
 from torch import nn
+import matplotlib.pyplot as plt
 
 class MaskInference(nn.Module):
     def __init__(self, num_features, num_audio_channels, hidden_size,
@@ -92,7 +94,18 @@ class MaskInference(nn.Module):
         # Step 3. Instantiate the model as a SeparationModel.
         return nussl.ml.SeparationModel(config)
 
-def train_step(engine, batch):
+def train_step(batch):
+    optimizer.zero_grad()
+    output = model(batch) # forward pass
+    loss = loss_fn(
+        output['estimates'],
+        batch['source_magnitudes']
+    )
+    loss.backward() # backwards + gradient step
+    optimizer.step()
+
+    return loss.item() # return the loss for bookkeeping.
+""" def train_step(engine, batch):
     optimizer.zero_grad()
     output = model(batch) # forward pass
     loss = loss_fn(
@@ -106,10 +119,10 @@ def train_step(engine, batch):
     loss_vals = {
         'L1Loss': loss.item(),
         'loss': loss.item()
-    }
+    } 
     
-    return loss_vals
-
+    return loss_vals """
+    
 def val_step(engine, batch):
     with torch.no_grad():
         output = model(batch) # forward pass
@@ -160,6 +173,30 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     loss_fn = nussl.ml.train.loss.L1Loss()
 
+
+    item = train_data[0] # Because of the transforms, this produces tensors.
+    batch = {} # A batch of size 1, in this case. Usually we'd have more.
+    for key in item:
+        if torch.is_tensor(item[key]):
+            batch[key] = item[key].float().unsqueeze(0)
+    print(batch)
+    print(len(batch))        
+
+    N_ITERATIONS = 100
+    loss_history = [] # For bookkeeping
+
+    pbar = tqdm.tqdm(range(N_ITERATIONS))
+    for _ in pbar:
+        loss_val = train_step(batch)
+        loss_history.append(loss_val)
+        pbar.set_description(f'Loss: {loss_val:.6f}')
+
+    plt.plot(loss_history)
+    plt.xlabel('# of iterations')
+    plt.ylabel('Training loss')
+    plt.title('Train loss history of our model')
+    plt.show()
+
     # Create the engines
     trainer, validator = nussl.ml.train.create_train_and_validation_engines(
         train_step, val_step, device=DEVICE
@@ -177,7 +214,7 @@ if __name__ == "__main__":
     trainer.run(
         train_dataloader, 
         epoch_length=10, 
-        max_epochs=1
+        max_epochs=2
     )
 
     #print(model.config)
