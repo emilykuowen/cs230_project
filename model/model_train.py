@@ -1,11 +1,12 @@
 from common import data
 import nussl
-
+import torch
 from nussl.datasets import transforms as nussl_tfm
-
+from common.models import MaskInference
+from common import utils, data
+from pathlib import Path
 from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
 from torch import nn
-import torch
 
 class MaskInference(nn.Module):
     def __init__(self, num_features, num_audio_channels, hidden_size,
@@ -91,19 +92,48 @@ class MaskInference(nn.Module):
         # Step 3. Instantiate the model as a SeparationModel.
         return nussl.ml.SeparationModel(config)
 
+def train_step(engine, batch):
+    optimizer.zero_grad()
+    output = model(batch) # forward pass
+    loss = loss_fn(
+        output['estimates'],
+        batch['source_magnitudes']
+    )
+    
+    loss.backward() # backwards + gradient step
+    optimizer.step()
+    
+    loss_vals = {
+        'L1Loss': loss.item(),
+        'loss': loss.item()
+    }
+    
+    return loss_vals
+
+def val_step(engine, batch):
+    with torch.no_grad():
+        output = model(batch) # forward pass
+    loss = loss_fn(
+        output['estimates'],
+        batch['source_magnitudes']
+    )    
+    loss_vals = {
+        'L1Loss': loss.item(), 
+        'loss': loss.item()
+    }
+    return loss_vals
+
 
 
 if __name__ == "__main__":
     # Prepare MUSDB
     data.prepare_musdb('~/.nussl/tutorial/')
 
+    # Training Loop
+    utils.logger()
+    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    MAX_MIXTURES = int(1e8) # We'll set this to some impossibly high number for on the fly mixing.
     stft_params = nussl.STFTParams(window_length=512, hop_length=128, window_type='sqrt_hann')
-
-    to_separation_model = nussl_tfm.ToSeparationModel()
-    item = to_separation_model(item)
-    print(item.keys())
-    for key in item:
-        print(key, type(item[key]), item[key].shape)
 
     tfm = nussl_tfm.Compose([
     nussl_tfm.SumSources([['bass', 'drums', 'other']]),
@@ -112,24 +142,45 @@ if __name__ == "__main__":
     nussl_tfm.ToSeparationModel(),
     ])
 
-    fg_path = "~/.nussl/tutorial/train"
-    train_data = data.on_the_fly(stft_params, transform=tfm, fg_path=fg_path, num_mixtures=1000, coherent_prob=1.0)
+    train_folder = "~/.nussl/tutorial/train"
+    val_folder = "~/.nussl/tutorial/valid"
 
-    fg_path = "~/.nussl/tutorial/valid"
-    val_data = data.on_the_fly(stft_params, transform=tfm, fg_path=fg_path, num_mixtures=500)
+    train_data = data.on_the_fly(stft_params, transform=tfm, 
+        fg_path=train_folder, num_mixtures=MAX_MIXTURES, coherent_prob=1.0)
+    train_dataloader = torch.utils.data.DataLoader(
+        train_data, num_workers=1, batch_size=10)
 
-    test_tfm = nussl_tfm.Compose([
-    nussl_tfm.SumSources([['bass', 'drums', 'other']]),
-    ])
-
-    fg_path = "~/.nussl/tutorial/test"
-    test_data = data.on_the_fly(stft_params, transform=test_tfm, fg_path=fg_path, num_mixtures=100)
+    val_data = data.on_the_fly(stft_params, transform=tfm, 
+        fg_path=val_folder, num_mixtures=10, coherent_prob=1.0)
+    val_dataloader = torch.utils.data.DataLoader(
+        val_data, num_workers=1, batch_size=10)
 
     nf = stft_params.window_length // 2 + 1
-    nac = 1
-    model = MaskInference.build(nf, nac, 50, 2, True, 0.3, 1, 'sigmoid')
+    model = MaskInference.build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    loss_fn = nussl.ml.train.loss.L1Loss()
 
+    # Create the engines
+    trainer, validator = nussl.ml.train.create_train_and_validation_engines(
+        train_step, val_step, device=DEVICE
+    )
 
-    print(model.config)
-    print(model)
-    model.config['modules']['model']['args']
+    # We'll save the output relative to this notebook.
+    output_folder = Path('.').absolute()
+
+    # Adding handlers from nussl that print out details about model training
+    # run the validation step, and save the models.
+    nussl.ml.train.add_stdout_handler(trainer, validator)
+    nussl.ml.train.add_validate_and_checkpoint(output_folder, model, 
+        optimizer, train_data, trainer, val_dataloader, validator)
+
+    trainer.run(
+        train_dataloader, 
+        epoch_length=10, 
+        max_epochs=1
+    )
+
+    #print(model.config)
+    #print(model)
+    #model.config['modules']['model']['args']
+    #print(model.config['modules']['model']['module_snapshot'])
