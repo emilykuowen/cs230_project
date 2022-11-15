@@ -2,4 +2,7 @@
 Group Members: Emily Kuo, Samantha Long, Sneha Shah
 
 To ssh into the AWS instance:
-ssh -i "~/.ssh/cs230.pem" ubuntu@ec2-54-149-20-20.us-west-2.compute.amazonaws.com
+<pre><code>ssh -i "~/.ssh/cs230.pem" ubuntu@ec2-54-149-20-20.us-west-2.compute.amazonaws.com</code></pre>
+
+Install ffmpeg through this command (not pip install):
+<pre><code>conda install -c conda-forge ffmpeg</code></pre>
