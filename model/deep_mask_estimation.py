@@ -56,29 +56,29 @@ if __name__ == "__main__":
     representation = np.abs(item['mix'].stft())
     vocals_representation = np.abs(item['sources']['vocals'].stft())
 
-    fig, ax = plt.subplots(1, 2, figsize=(15, 4))
-    ax[0].imshow(20 * np.log10(representation[..., 0]), origin='lower', aspect='auto')
-    ax[0].set_title('Mixture spectrogram')
-    ax[1].imshow(20 * np.log10(vocals_representation[..., 0]), origin='lower', aspect='auto')
-    ax[1].set_title('Vocals spectrogram')
-    plt.show()
+    # fig, ax = plt.subplots(1, 2, figsize=(15, 4))
+    # ax[0].imshow(20 * np.log10(representation[..., 0]), origin='lower', aspect='auto')
+    # ax[0].set_title('Mixture spectrogram')
+    # ax[1].imshow(20 * np.log10(vocals_representation[..., 0]), origin='lower', aspect='auto')
+    # ax[1].set_title('Vocals spectrogram')
+    # plt.show()
 
     mask = vocals_representation / (np.maximum(vocals_representation, representation) + 1e-8)
 
-    fig, ax = plt.subplots(1, 2, figsize=(15, 4))
-    ax[0].imshow(20 * np.log10(representation[..., 0]), origin='lower', aspect='auto')
-    ax[0].set_title('Mixture spectrogram')
-    ax[1].imshow(mask[..., 0], origin='lower', aspect='auto')
-    ax[1].set_title('Vocals mask')
-    plt.show()
+    # fig, ax = plt.subplots(1, 2, figsize=(15, 4))
+    # ax[0].imshow(20 * np.log10(representation[..., 0]), origin='lower', aspect='auto')
+    # ax[0].set_title('Mixture spectrogram')
+    # ax[1].imshow(mask[..., 0], origin='lower', aspect='auto')
+    # ax[1].set_title('Vocals mask')
+    # plt.show()
 
     masked = mask * representation
-    fig, ax = plt.subplots(1, 2, figsize=(15, 4))
-    ax[0].imshow(20 * np.log10(vocals_representation[..., 0]), origin='lower', aspect='auto')
-    ax[0].set_title('Actual vocals')
-    ax[1].imshow(20 * np.log10(masked[..., 0]), origin='lower', aspect='auto')
-    ax[1].set_title('Masked vocals')
-    plt.show()
+    # fig, ax = plt.subplots(1, 2, figsize=(15, 4))
+    # ax[0].imshow(20 * np.log10(vocals_representation[..., 0]), origin='lower', aspect='auto')
+    # ax[0].set_title('Actual vocals')
+    # ax[1].imshow(20 * np.log10(masked[..., 0]), origin='lower', aspect='auto')
+    # ax[1].set_title('Masked vocals')
+    # plt.show()
 
     mix_phase = np.angle(item['mix'].stft())
     masked_stft = masked * np.exp(1j * mix_phase)
@@ -88,15 +88,17 @@ if __name__ == "__main__":
 
     mix_tensor = torch.from_numpy(representation)
     mask_tensor = torch.rand_like(mix_tensor.unsqueeze(-1))
-
-    # shapes
     print(mix_tensor.shape, mask_tensor.shape)
 
     # masking operation:
     masked_tensor = mix_tensor.unsqueeze(-1) * mask_tensor
-
     print(masked_tensor.shape)
-    nb, nt, nf, nac = mix_tensor.shape
+    
+    print("Shape before (nf, nt, nac): ", mix_tensor.shape)
+    mix_tensor = mix_tensor.permute(1, 0, 2).unsqueeze(0).float()
+    print("Shape after (nb, nt, nf, nac):", mix_tensor.shape)
+    
+    nb, nt, nf, nac = mix_tensor.shape # not enough values to unpack, expected 4 but got 3
     model = Model(nf, nac, 50, 2, True, 0.3, 1, 'sigmoid')
     output = model(mix_tensor)
 
