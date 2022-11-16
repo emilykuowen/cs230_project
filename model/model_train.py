@@ -134,8 +134,6 @@ def val_step(engine, batch):
 
 
 def train(output_folder, epoch_length, max_epochs):
-    global DEVICE
-    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     global MAX_MIXTURES
     MAX_MIXTURES = int(1e8) # We'll set this to some impossibly high number for on the fly mixing.
     global stft_params
@@ -219,11 +217,9 @@ def evaluate(output_folder, separator):
             json.dump(scores, f, indent=4)
     
     json_files = glob.glob(f"*.json")
-    df = nussl.evaluation.aggregate_score_files(
-        json_files, aggregator=np.nanmedian)
+    df = nussl.evaluation.aggregate_score_files(json_files, aggregator=np.nanmedian)
     nussl.evaluation.associate_metrics(separator.model, df, test_dataset)
-    report_card = nussl.evaluation.report_card(
-        df, report_each_source=True)
+    report_card = nussl.evaluation.report_card(df, report_each_source=True)
     print(report_card)
     
 
@@ -252,6 +248,7 @@ if __name__ == "__main__":
     3. Change for loop in evaluate() to loop through all 50 test songs
     """
     utils.logger()
+    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     
     dataset_path = str(Path.home()) + '/.nussl/tutorial'
     # Download dataset if it hasn't been downloaded
