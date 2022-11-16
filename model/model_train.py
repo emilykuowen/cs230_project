@@ -256,7 +256,7 @@ if __name__ == "__main__":
         data.prepare_musdb(dataset_path)
 
     output_folder = Path('.').absolute()
-    train(output_folder, epoch_length=10, max_epochs=50)
+    train(output_folder, epoch_length=20, max_epochs=15)
 
     separator = nussl.separation.deep.DeepMaskEstimation(
         nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
