@@ -102,7 +102,6 @@ class MaskInference(nn.Module):
 
 def train_step(engine, batch):
     optimizer.zero_grad()
-    model = model.to(DEVICE)
     output = model(batch) # forward pass
     loss = loss_fn(
         output['estimates'],
@@ -122,7 +121,6 @@ def train_step(engine, batch):
 
 def val_step(engine, batch):
     with torch.no_grad():
-        model = model.to(DEVICE)
         output = model(batch) # forward pass
     loss = loss_fn(
         output['estimates'],
@@ -138,6 +136,7 @@ def val_step(engine, batch):
 def train(output_folder, epoch_length, max_epochs):    
     train_folder = "~/.nussl/tutorial/train"
     val_folder = "~/.nussl/tutorial/valid"
+    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     tfm = nussl_tfm.Compose([
         nussl_tfm.SumSources([['bass', 'drums', 'other']]),
@@ -159,13 +158,13 @@ def train(output_folder, epoch_length, max_epochs):
     nf = stft_params.window_length // 2 + 1
     global model
     model = MaskInference.build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
+    model = model.to(DEVICE)
     global optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     global loss_fn
     loss_fn = nussl.ml.train.loss.L1Loss()
 
     # Create the engines
-    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     trainer, validator = nussl.ml.train.create_train_and_validation_engines(
         train_step, val_step, device=DEVICE
     )
