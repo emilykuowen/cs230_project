@@ -133,11 +133,7 @@ def val_step(engine, batch):
     return loss_vals
 
 
-def train(output_folder, epoch_length, max_epochs):
-    global MAX_MIXTURES
-    MAX_MIXTURES = int(1e8) # We'll set this to some impossibly high number for on the fly mixing.
-    global stft_params
-    stft_params = nussl.STFTParams(window_length=512, hop_length=128, window_type='sqrt_hann')
+def train(output_folder, epoch_length, max_epochs):    
     train_folder = "~/.nussl/tutorial/train"
     val_folder = "~/.nussl/tutorial/valid"
 
@@ -249,6 +245,8 @@ if __name__ == "__main__":
     """
     utils.logger()
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    MAX_MIXTURES = int(1e8) # We'll set this to some impossibly high number for on the fly mixing.
+    stft_params = nussl.STFTParams(window_length=512, hop_length=128, window_type='sqrt_hann')
     
     dataset_path = str(Path.home()) + '/.nussl/tutorial'
     # Download dataset if it hasn't been downloaded
