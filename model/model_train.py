@@ -163,6 +163,7 @@ def train(output_folder, epoch_length, max_epochs):
     loss_fn = nussl.ml.train.loss.L1Loss()
 
     # Create the engines
+    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     trainer, validator = nussl.ml.train.create_train_and_validation_engines(
         train_step, val_step, device=DEVICE
     )
