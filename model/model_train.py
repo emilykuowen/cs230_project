@@ -9,6 +9,9 @@ from pathlib import Path
 from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
 from torch import nn
 import matplotlib.pyplot as plt
+import json
+import glob
+import numpy as np
 
 class MaskInference(nn.Module):
     def __init__(self, num_features, num_audio_channels, hidden_size,
@@ -67,7 +70,6 @@ class MaskInference(nn.Module):
             }
         }
         
-        
         # Step 2b: Define the connections between input and output.
         # Here, the mix_magnitude key is the only input to the model.
         connections = [
@@ -95,35 +97,23 @@ class MaskInference(nn.Module):
         # Step 3. Instantiate the model as a SeparationModel.
         return nussl.ml.SeparationModel(config)
 
-def train_step(batch, model, optimizer, loss_fn):
+def train_step(engine, batch):
     optimizer.zero_grad()
     output = model(batch) # forward pass
     loss = loss_fn(
         output['estimates'],
         batch['source_magnitudes']
     )
+    
     loss.backward() # backwards + gradient step
     optimizer.step()
-
-    return loss.item() # return the loss for bookkeeping.
-
-# def train_step(engine, batch):
-#     optimizer.zero_grad()
-#     output = model(batch) # forward pass
-#     loss = loss_fn(
-#         output['estimates'],
-#         batch['source_magnitudes']
-#     )
     
-#     loss.backward() # backwards + gradient step
-#     optimizer.step()
+    loss_vals = {
+        'L1Loss': loss.item(),
+        'loss': loss.item()
+    } 
     
-#     loss_vals = {
-#         'L1Loss': loss.item(),
-#         'loss': loss.item()
-#     } 
-    
-#     return loss_vals
+    return loss_vals
     
 def val_step(engine, batch):
     with torch.no_grad():
@@ -141,70 +131,55 @@ def val_step(engine, batch):
 
 
 if __name__ == "__main__":
+    """
+    TO-DOs:
+    1. Move training and deployment code to separate functions
+    2. Move data download code to a function and make sure it only runs once
+    3. Call the functions in main()
+    4. Add in a consistent random seed for data to get the same output
+    5. Add code to plot / store loss values
+    6. Change for loop to loop through all 50 test songs
+    """
     # Prepare MUSDB
     # data.prepare_musdb('~/.nussl/tutorial/')
 
     # Training Loop
     utils.logger()
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-    MAX_MIXTURES = int(1e8) # We'll set this to some impossibly high number for on the fly mixing.
+    # We'll save the output relative to this notebook.
+    output_folder = Path('.').absolute()
     stft_params = nussl.STFTParams(window_length=512, hop_length=128, window_type='sqrt_hann')
+    MAX_MIXTURES = int(1e8) # We'll set this to some impossibly high number for on the fly mixing.
 
-    tfm = nussl_tfm.Compose([
-        nussl_tfm.SumSources([['bass', 'drums', 'other']]),
-        nussl_tfm.MagnitudeSpectrumApproximation(),
-        nussl_tfm.IndexSources('source_magnitudes', 1),
-        nussl_tfm.ToSeparationModel(),
-    ])
+    # tfm = nussl_tfm.Compose([
+    #     nussl_tfm.SumSources([['bass', 'drums', 'other']]),
+    #     nussl_tfm.MagnitudeSpectrumApproximation(),
+    #     nussl_tfm.IndexSources('source_magnitudes', 1),
+    #     nussl_tfm.ToSeparationModel(),
+    # ])
 
-    train_folder = "~/.nussl/tutorial/train"
-    val_folder = "~/.nussl/tutorial/valid"
+    # train_folder = "~/.nussl/tutorial/train"
+    # val_folder = "~/.nussl/tutorial/valid"
 
-    train_data = data.on_the_fly(stft_params, transform=tfm, 
-        fg_path=train_folder, num_mixtures=MAX_MIXTURES, coherent_prob=1.0)
-    train_dataloader = torch.utils.data.DataLoader(
-        train_data, num_workers=1, batch_size=10)
+    # train_data = data.on_the_fly(stft_params, transform=tfm, 
+    #     fg_path=train_folder, num_mixtures=MAX_MIXTURES, coherent_prob=1.0)
+    # train_dataloader = torch.utils.data.DataLoader(
+    #     train_data, num_workers=1, batch_size=10)
 
-    val_data = data.on_the_fly(stft_params, transform=tfm, 
-        fg_path=val_folder, num_mixtures=10, coherent_prob=1.0)
-    val_dataloader = torch.utils.data.DataLoader(
-        val_data, num_workers=1, batch_size=10)
+    # val_data = data.on_the_fly(stft_params, transform=tfm, 
+    #     fg_path=val_folder, num_mixtures=10, coherent_prob=1.0)
+    # val_dataloader = torch.utils.data.DataLoader(
+    #     val_data, num_workers=1, batch_size=10)
 
-    nf = stft_params.window_length // 2 + 1
-    model = MaskInference.build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-    loss_fn = nussl.ml.train.loss.L1Loss()
-
-
-    item = train_data[0] # Because of the transforms, this produces tensors.
-    batch = {} # A batch of size 1, in this case. Usually we'd have more.
-    for key in item:
-        if torch.is_tensor(item[key]):
-            batch[key] = item[key].float().unsqueeze(0)    
-    print(len(batch))
-
-    N_ITERATIONS = 100
-    loss_history = [] # For bookkeeping
-
-    pbar = tqdm.tqdm(range(N_ITERATIONS))
-    for _ in pbar:
-        loss_val = train_step(batch, model, optimizer, loss_fn)
-        loss_history.append(loss_val)
-        pbar.set_description(f'Loss: {loss_val:.6f}')
-
-    plt.plot(loss_history)
-    plt.xlabel('# of iterations')
-    plt.ylabel('Training loss')
-    plt.title('Train loss history of our model')
-    plt.show()
+    # nf = stft_params.window_length // 2 + 1
+    # model = MaskInference.build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
+    # optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    # loss_fn = nussl.ml.train.loss.L1Loss()
 
     # # Create the engines
     # trainer, validator = nussl.ml.train.create_train_and_validation_engines(
     #     train_step, val_step, device=DEVICE
     # )
-
-    # # We'll save the output relative to this notebook.
-    # output_folder = Path('.').absolute()
 
     # # Adding handlers from nussl that print out details about model training
     # # run the validation step, and save the models.
@@ -215,10 +190,65 @@ if __name__ == "__main__":
     # trainer.run(
     #     train_dataloader, 
     #     epoch_length=10, 
-    #     max_epochs=2
+    #     max_epochs=1
     # )
 
-    #print(model.config)
-    #print(model)
-    #model.config['modules']['model']['args']
-    #print(model.config['modules']['model']['module_snapshot'])
+    # Deployment
+    separator = nussl.separation.deep.DeepMaskEstimation(
+        nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
+        device=DEVICE,
+    )
+
+    test_folder = "~/.nussl/tutorial/test/"
+    test_data = data.mixer(stft_params, transform=None, 
+        fg_path=test_folder, num_mixtures=MAX_MIXTURES, coherent_prob=1.0)
+    item = test_data[0]
+
+    separator.audio_signal = item['mix']
+    estimates = separator()
+    # Since our model only returns one source, let's tack on the
+    # residual (which should be accompaniment)
+    estimates.append(item['mix'] - estimates[0])
+    stem1 = estimates[0]
+    stem2 = estimates[1]
+    stem1.write_audio_to_file('stem1.wav')
+    stem2.write_audio_to_file('stem2.wav')
+
+    # tfm = nussl_tfm.Compose([
+    #     nussl_tfm.SumSources([['bass', 'drums', 'other']]),
+    # ])
+
+    # test_dataset = nussl.datasets.MUSDB18(subsets=['test'], transform=tfm)
+
+    # # Just do 5 items for speed. Change to 50 for actual experiment.
+    # for i in range(5):
+    #     item = test_dataset[i]
+    #     separator.audio_signal = item['mix']
+    #     estimates = separator()
+
+    #     source_keys = list(item['sources'].keys())
+    #     estimates = {
+    #         'vocals': estimates[0],
+    #         'bass+drums+other': item['mix'] - estimates[0]
+    #     }
+
+    #     sources = [item['sources'][k] for k in source_keys]
+    #     estimates = [estimates[k] for k in source_keys]
+
+    #     evaluator = nussl.evaluation.BSSEvalScale(
+    #         sources, estimates, source_labels=source_keys
+    #     )
+    #     scores = evaluator.evaluate()
+    #     output_folder = Path(output_folder).absolute()
+    #     output_folder.mkdir(exist_ok=True)
+    #     output_file = output_folder / sources[0].file_name.replace('wav', 'json')
+    #     with open(output_file, 'w') as f:
+    #         json.dump(scores, f, indent=4)
+    
+    # json_files = glob.glob(f"*.json")
+    # df = nussl.evaluation.aggregate_score_files(
+    #     json_files, aggregator=np.nanmedian)
+    # nussl.evaluation.associate_metrics(separator.model, df, test_dataset)
+    # report_card = nussl.evaluation.report_card(
+    #     df, report_each_source=True)
+    # print(report_card)
