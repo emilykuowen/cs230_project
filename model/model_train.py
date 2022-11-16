@@ -234,8 +234,8 @@ def convert_output_to_wav(separator):
     estimates.append(item['mix'] - estimates[0])
     stem1 = estimates[0]
     stem2 = estimates[1]
-    stem1.write_audio_to_file('stem1.wav')
-    stem2.write_audio_to_file('stem2.wav')
+    stem1.write_audio_to_file('vocal.wav')
+    stem2.write_audio_to_file('accompaniment.wav')
 
 
 if __name__ == "__main__":
@@ -256,7 +256,7 @@ if __name__ == "__main__":
         data.prepare_musdb(dataset_path)
 
     output_folder = Path('.').absolute()
-    train(output_folder, epoch_length=10, max_epochs=10)
+    train(output_folder, epoch_length=10, max_epochs=50)
 
     separator = nussl.separation.deep.DeepMaskEstimation(
         nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
