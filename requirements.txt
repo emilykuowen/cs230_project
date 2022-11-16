@@ -13,3 +13,4 @@ gif
 pyloudnorm
 gradio
 gif
+git+https://github.com/source-separation/tutorial
