@@ -80,7 +80,8 @@ class MaskInference(nn.Module):
         # This will be important later when we actually deploy our model.
         for key in ['mask', 'estimates']:
             modules[key] = {'class': 'Alias'}
-            connections.append([key, f'model:{key}'])
+            # Bug fix: added brackets around f'model:{key}' to avoid KeyError
+            connections.append([key, [f'model:{key}']])
         
         # Step 2d. There are two outputs from our SeparationModel: estimates and mask.
         # Then put it all together.
@@ -94,7 +95,7 @@ class MaskInference(nn.Module):
         # Step 3. Instantiate the model as a SeparationModel.
         return nussl.ml.SeparationModel(config)
 
-def train_step(batch):
+def train_step(batch, model, optimizer, loss_fn):
     optimizer.zero_grad()
     output = model(batch) # forward pass
     loss = loss_fn(
@@ -105,23 +106,24 @@ def train_step(batch):
     optimizer.step()
 
     return loss.item() # return the loss for bookkeeping.
-""" def train_step(engine, batch):
-    optimizer.zero_grad()
-    output = model(batch) # forward pass
-    loss = loss_fn(
-        output['estimates'],
-        batch['source_magnitudes']
-    )
+
+# def train_step(engine, batch):
+#     optimizer.zero_grad()
+#     output = model(batch) # forward pass
+#     loss = loss_fn(
+#         output['estimates'],
+#         batch['source_magnitudes']
+#     )
     
-    loss.backward() # backwards + gradient step
-    optimizer.step()
+#     loss.backward() # backwards + gradient step
+#     optimizer.step()
     
-    loss_vals = {
-        'L1Loss': loss.item(),
-        'loss': loss.item()
-    } 
+#     loss_vals = {
+#         'L1Loss': loss.item(),
+#         'loss': loss.item()
+#     } 
     
-    return loss_vals """
+#     return loss_vals
     
 def val_step(engine, batch):
     with torch.no_grad():
@@ -140,7 +142,7 @@ def val_step(engine, batch):
 
 if __name__ == "__main__":
     # Prepare MUSDB
-    data.prepare_musdb('~/.nussl/tutorial/')
+    # data.prepare_musdb('~/.nussl/tutorial/')
 
     # Training Loop
     utils.logger()
@@ -149,10 +151,10 @@ if __name__ == "__main__":
     stft_params = nussl.STFTParams(window_length=512, hop_length=128, window_type='sqrt_hann')
 
     tfm = nussl_tfm.Compose([
-    nussl_tfm.SumSources([['bass', 'drums', 'other']]),
-    nussl_tfm.MagnitudeSpectrumApproximation(),
-    nussl_tfm.IndexSources('source_magnitudes', 1),
-    nussl_tfm.ToSeparationModel(),
+        nussl_tfm.SumSources([['bass', 'drums', 'other']]),
+        nussl_tfm.MagnitudeSpectrumApproximation(),
+        nussl_tfm.IndexSources('source_magnitudes', 1),
+        nussl_tfm.ToSeparationModel(),
     ])
 
     train_folder = "~/.nussl/tutorial/train"
@@ -178,16 +180,15 @@ if __name__ == "__main__":
     batch = {} # A batch of size 1, in this case. Usually we'd have more.
     for key in item:
         if torch.is_tensor(item[key]):
-            batch[key] = item[key].float().unsqueeze(0)
-    print(batch)
-    print(len(batch))        
+            batch[key] = item[key].float().unsqueeze(0)    
+    print(len(batch))
 
     N_ITERATIONS = 100
     loss_history = [] # For bookkeeping
 
     pbar = tqdm.tqdm(range(N_ITERATIONS))
     for _ in pbar:
-        loss_val = train_step(batch)
+        loss_val = train_step(batch, model, optimizer, loss_fn)
         loss_history.append(loss_val)
         pbar.set_description(f'Loss: {loss_val:.6f}')
 
@@ -197,25 +198,25 @@ if __name__ == "__main__":
     plt.title('Train loss history of our model')
     plt.show()
 
-    # Create the engines
-    trainer, validator = nussl.ml.train.create_train_and_validation_engines(
-        train_step, val_step, device=DEVICE
-    )
+    # # Create the engines
+    # trainer, validator = nussl.ml.train.create_train_and_validation_engines(
+    #     train_step, val_step, device=DEVICE
+    # )
 
-    # We'll save the output relative to this notebook.
-    output_folder = Path('.').absolute()
+    # # We'll save the output relative to this notebook.
+    # output_folder = Path('.').absolute()
 
-    # Adding handlers from nussl that print out details about model training
-    # run the validation step, and save the models.
-    nussl.ml.train.add_stdout_handler(trainer, validator)
-    nussl.ml.train.add_validate_and_checkpoint(output_folder, model, 
-        optimizer, train_data, trainer, val_dataloader, validator)
+    # # Adding handlers from nussl that print out details about model training
+    # # run the validation step, and save the models.
+    # nussl.ml.train.add_stdout_handler(trainer, validator)
+    # nussl.ml.train.add_validate_and_checkpoint(output_folder, model, 
+    #     optimizer, train_data, trainer, val_dataloader, validator)
 
-    trainer.run(
-        train_dataloader, 
-        epoch_length=10, 
-        max_epochs=2
-    )
+    # trainer.run(
+    #     train_dataloader, 
+    #     epoch_length=10, 
+    #     max_epochs=2
+    # )
 
     #print(model.config)
     #print(model)
