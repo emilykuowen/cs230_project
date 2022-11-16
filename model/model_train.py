@@ -102,6 +102,7 @@ class MaskInference(nn.Module):
 
 def train_step(engine, batch):
     optimizer.zero_grad()
+    model = model.to(DEVICE)
     output = model(batch) # forward pass
     loss = loss_fn(
         output['estimates'],
@@ -121,11 +122,12 @@ def train_step(engine, batch):
 
 def val_step(engine, batch):
     with torch.no_grad():
+        model = model.to(DEVICE)
         output = model(batch) # forward pass
     loss = loss_fn(
         output['estimates'],
         batch['source_magnitudes']
-    )    
+    )       
     loss_vals = {
         'L1Loss': loss.item(), 
         'loss': loss.item()
