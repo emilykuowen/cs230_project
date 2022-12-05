@@ -186,7 +186,8 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
 
 def evaluate(output_folder, separator):
     tfm = nussl_tfm.Compose([
-        nussl_tfm.SumSources([['bass', 'drums', 'other']]),
+        #nussl_tfm.SumSources([['bass', 'drums', 'other']]),
+        nussl_tfm.SumSources([['drums', 'other', 'vocals']]),
     ])
 
     test_dataset = nussl.datasets.MUSDB18(subsets=['test'], transform=tfm)
