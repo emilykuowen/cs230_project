@@ -19,8 +19,9 @@ audio_files = mp3_files + wav_files
 for fname in audio_files:
   target_name = os.path.join(AUDIO_DIR, os.path.basename(fname).replace(' ', '_'))
   print('Copying {} to {}'.format(fname, target_name))
-  print("command: ", "cp " + fname + " " + target_name")
-  os.system("cp " + fname + " " + target_name)
+  cp_command = "cp " + fname + " " + target_name
+  print(cp_command)
+  os.system(cp_command)
 
 # Preprocess raw audio into TFRecord dataset
 TRAIN_TFRECORD = 'data/train.tfrecord'
