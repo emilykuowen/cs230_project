@@ -24,7 +24,7 @@ class MaskInference(nn.Module):
         
         self.amplitude_to_db = AmplitudeToDB()
         self.input_normalization = BatchNorm(num_features)
-        self.recurrent_stack = RecurrentStack(
+        self.recurrent_stack = ConditionedRecurrentStack(
             num_features * num_audio_channels, hidden_size, 
             num_layers, bool(bidirectional), dropout
         )
