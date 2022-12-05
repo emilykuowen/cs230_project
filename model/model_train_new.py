@@ -7,8 +7,8 @@ from nussl.datasets import transforms as nussl_tfm
 from common.models import MaskInference
 from common import utils, data
 from pathlib import Path
-from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
-from separation_model import ConditionedRecurrentStack
+# from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
+from separation_model import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding, ConditionedRecurrentStack
 from torch import nn
 import matplotlib.pyplot as plt
 import json
@@ -272,7 +272,7 @@ if __name__ == "__main__":
     # batch_size = number of training examples in a batch
     # max_epoch = total number of epochs ran in training
     # epoch_length = number of batches in one epoch
-    train(output_folder, batch_size=10, max_epochs=30, epoch_length=20)
+    train(output_folder, batch_size=10, max_epochs=1, epoch_length=20)
 
     # separator = nussl.separation.deep.DeepMaskEstimation(
     #     nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
