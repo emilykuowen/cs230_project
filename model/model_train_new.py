@@ -8,7 +8,7 @@ from common.models import MaskInference
 from common import utils, data
 from pathlib import Path
 from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
-from . import separation_model
+import separation_model
 from torch import nn
 import matplotlib.pyplot as plt
 import json
