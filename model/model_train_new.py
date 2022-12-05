@@ -71,7 +71,7 @@ class MaskInference(nn.Module):
                     'num_sources': num_sources,
                     'activation': activation,
                     'rnn_type':rnn_type,
-                    'conditioning': condition
+                    'condition': condition
                 }
             }
         }
