@@ -18,8 +18,8 @@ import numpy as np
 
 class MaskInference(nn.Module):
     def __init__(self, num_features, num_audio_channels, hidden_size,
-                 num_layers, bidirectional, dropout, num_sources, 
-                activation='sigmoid'):
+                 num_layers, condition, rnn_type='lstm', bidirectional=True, dropout=0.0, num_sources=1, 
+              activation='sigmoid'):
         super().__init__()
         
         self.amplitude_to_db = AmplitudeToDB()
