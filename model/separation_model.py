@@ -49,6 +49,7 @@ class ConditionedRecurrentStack(nn.Module):
                     n = bias.size(0)
                     start, end = n // 4, n // 2
                     bias.data[start:end].fill_(1.)
+        print("Initialized ConditionedRecurrantStack!! :D")
 
     def forward(self, data):
         """
@@ -61,7 +62,6 @@ class ConditionedRecurrentStack(nn.Module):
             (num_batch, sequence_length, hidden_size or hidden_size*2 if 
             bidirectional=True)
         """
-        print("Moving foprward in the rnn!!")
         shape = data.shape
         data = data.reshape(shape[0], shape[1], -1)
         self.rnn.flatten_parameters()

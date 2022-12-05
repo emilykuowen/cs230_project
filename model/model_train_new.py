@@ -52,7 +52,7 @@ class MaskInference(nn.Module):
     @classmethod
     #build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
     def build(cls, num_features, num_audio_channels, hidden_size, 
-              num_layers, bidirectional=True, dropout=0.0, num_sources=1, 
+              num_layers, condition, rnn_type='lstm', bidirectional=True, dropout=0.0, num_sources=1, 
               activation='sigmoid'):
         # Step 1. Register our model with nussl
         nussl.ml.register_module(cls)
@@ -70,6 +70,8 @@ class MaskInference(nn.Module):
                     'dropout': dropout,
                     'num_sources': num_sources,
                     'activation': activation,
+                    'rnn_type':rnn_type,
+                    'conditioning': condition
                 }
             }
         }
@@ -157,11 +159,12 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
         fg_path=val_folder, num_mixtures=10, coherent_prob=1.0)
     val_dataloader = torch.utils.data.DataLoader(val_data, num_workers=1, batch_size=batch_size)
     
+    condition=[1,0,0,0]
+
     nf = stft_params.window_length // 2 + 1
     global model
-    model = MaskInference.build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
-    # maskObject = MaskInference(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
-
+    model = MaskInference.build(nf, 1, 50, 1, condition, rnn_type='lstm', bidirectional=True, \
+    dropout=0.0, num_sources=1, activation='sigmoid')
     model = model.to(DEVICE)
     global optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -274,11 +277,11 @@ if __name__ == "__main__":
     # epoch_length = number of batches in one epoch
     train(output_folder, batch_size=10, max_epochs=1, epoch_length=20)
 
-    separator = nussl.separation.deep.DeepMaskEstimation(
-        nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
-        device=DEVICE,
-    )
+    # separator = nussl.separation.deep.DeepMaskEstimation(
+    #     nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
+    #     device=DEVICE,
+    # )
 
-    plot_validation_loss()
-    evaluate(output_folder, separator)
-    convert_output_to_wav(separator, 0)
+    # plot_validation_loss()
+    # evaluate(output_folder, separator)
+    # convert_output_to_wav(separator, 0)
