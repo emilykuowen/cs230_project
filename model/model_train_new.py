@@ -43,7 +43,7 @@ class MaskInference(nn.Module):
         estimates = mix_magnitude.unsqueeze(-1) * mask
         
         output = {
-            'mask': mask,
+            # 'mask': mask,
             'estimates': estimates
         }
         return output
@@ -159,7 +159,9 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     
     nf = stft_params.window_length // 2 + 1
     global model
-    model = MaskInference.build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
+    # model = MaskInference.build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
+    maskObject = MaskInference(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
+
     model = model.to(DEVICE)
     global optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
