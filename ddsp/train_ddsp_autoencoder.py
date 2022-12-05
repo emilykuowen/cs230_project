@@ -1,16 +1,17 @@
 import glob
 import os
 import ddsp.training
-from ddsp.colab import colab_utils
 
-os.system("pip install -qU ddsp[data_preparation]==1.6.3")
+# os.system("pip install -qU ddsp[data_preparation]==1.6.3")
 
-DRIVE_DIR = '../data/train/'
-AUDIO_DIR = 'data/audio'
+# Make directories to save model and data
+DRIVE_DIR = '../data/train/bass'
+AUDIO_DIR = '../data/tf_audio/bass'
 AUDIO_FILEPATTERN = AUDIO_DIR + '/*'
 os.system("mkdir -p " + AUDIO_DIR)
 SAVE_DIR = os.path.join(DRIVE_DIR, 'ddsp-solo-instrument')
 os.system("mkdir -p " + SAVE_DIR)
+
 mp3_files = glob.glob(os.path.join(DRIVE_DIR, '*.mp3'))
 wav_files = glob.glob(os.path.join(DRIVE_DIR, '*.wav'))
 audio_files = mp3_files + wav_files
@@ -18,8 +19,11 @@ audio_files = mp3_files + wav_files
 for fname in audio_files:
   target_name = os.path.join(AUDIO_DIR, os.path.basename(fname).replace(' ', '_'))
   print('Copying {} to {}'.format(fname, target_name))
-  os.system("cp " + fname + " " + target_name)
+  cp_command = "cp \"" + fname + "\" " + target_name
+  print(cp_command)
+  os.system(cp_command)
 
+# Preprocess raw audio into TFRecord dataset
 TRAIN_TFRECORD = 'data/train.tfrecord'
 TRAIN_TFRECORD_FILEPATTERN = TRAIN_TFRECORD + '*'
 
@@ -29,7 +33,6 @@ drive_dataset_files = glob.glob(drive_data_dir + '/*')
 
 if DRIVE_DIR and len(drive_dataset_files) > 0:
     os.system("cp " + drive_data_dir + "/* data/")
-
 else:
     # Make a new dataset.
     if not glob.glob(AUDIO_FILEPATTERN):
@@ -45,10 +48,8 @@ else:
     if DRIVE_DIR:
         os.system("mkdir " + drive_data_dir)
         print('Saving to {}'.format(drive_data_dir))
-        os.system("cp " + TRAIN_TFRECORD_FILEPATTERN + "$drive_data_dir")
+        os.system("cp " + TRAIN_TFRECORD_FILEPATTERN + drive_data_dir + "/")
 
-data_provider = ddsp.training.data.TFRecordProvider(TRAIN_TFRECORD_FILEPATTERN)
-dataset = data_provider.get_dataset(shuffle=False)
-PICKLE_FILE_PATH = os.path.join(SAVE_DIR, 'dataset_statistics.pkl')
-
-_ = colab_utils.save_dataset_statistics(data_provider, PICKLE_FILE_PATH, batch_size=1)
+# data_provider = ddsp.training.data.TFRecordProvider(TRAIN_TFRECORD_FILEPATTERN)
+# dataset = data_provider.get_dataset(shuffle=False)
+# PICKLE_FILE_PATH = os.path.join(SAVE_DIR, 'dataset_statistics.pkl')
