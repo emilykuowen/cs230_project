@@ -8,7 +8,7 @@ from common.models import MaskInference
 from common import utils, data
 from pathlib import Path
 from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
-import separation_model
+from separation_model import ConditionedRecurrentStack
 from torch import nn
 import matplotlib.pyplot as plt
 import json
@@ -70,7 +70,6 @@ class MaskInference(nn.Module):
                     'dropout': dropout,
                     'num_sources': num_sources,
                     'activation': activation,
-                    'conditioning_layers': []
                 }
             }
         }
@@ -100,7 +99,7 @@ class MaskInference(nn.Module):
             'output': output
         }
         # Step 3. Instantiate the model as a SeparationModel.
-        return separation_model(config)
+        return nussl.ml.SeparationModel(config)
 
 
 def train_step(engine, batch):
