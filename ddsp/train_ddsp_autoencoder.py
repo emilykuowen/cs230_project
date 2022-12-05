@@ -2,7 +2,7 @@ import glob
 import os
 import ddsp.training
 
-os.system("pip install -qU ddsp[data_preparation]==1.6.3")
+# os.system("pip install -qU ddsp[data_preparation]==1.6.3")
 
 # Make directories to save model and data
 DRIVE_DIR = '../data/train/bass'
