@@ -26,7 +26,7 @@ class MaskInference(nn.Module):
         self.input_normalization = BatchNorm(num_features)
         self.recurrent_stack = ConditionedRecurrentStack(
             num_features * num_audio_channels, hidden_size, 
-            num_layers, bool(bidirectional), dropout
+            num_layers, condition, bool(bidirectional), dropout, rnn_type=rnn_type
         )
         hidden_size = hidden_size * (int(bidirectional) + 1)
         self.embedding = Embedding(num_features, hidden_size, 
@@ -163,7 +163,7 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
 
     nf = stft_params.window_length // 2 + 1
     global model
-    model = MaskInference.build(nf, 1, 50, 1, condition, rnn_type='lstm', bidirectional=True, \
+    model = MaskInference.build(nf, 1, 50, 1, condition, rnn_type='gru', bidirectional=True, \
     dropout=0.0, num_sources=1, activation='sigmoid')
     model = model.to(DEVICE)
     global optimizer

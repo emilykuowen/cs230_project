@@ -24,7 +24,7 @@ class ConditionedRecurrentStack(nn.Module):
         dropout: (float) Dropout between layers.
         rnn_type: (str) LSTM ('lstm') or GRU ('gru').
     """
-    def __init__(self, num_features, hidden_size, num_layers, bidirectional, dropout,
+    def __init__(self, num_features, hidden_size, num_layers, condition, bidirectional, dropout,
                  rnn_type='lstm', batch_first=True, init_forget=True):
         super(ConditionedRecurrentStack, self).__init__()
         if rnn_type not in ['lstm', 'gru']:
@@ -50,6 +50,7 @@ class ConditionedRecurrentStack(nn.Module):
                     start, end = n // 4, n // 2
                     bias.data[start:end].fill_(1.)
         print("Initialized ConditionedRecurrantStack!! :D")
+        print(rnn_type)
 
     def forward(self, data):
         """
