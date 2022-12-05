@@ -274,10 +274,10 @@ if __name__ == "__main__":
     # epoch_length = number of batches in one epoch
     train(output_folder, batch_size=10, max_epochs=1, epoch_length=20)
 
-    # separator = nussl.separation.deep.DeepMaskEstimation(
-    #     nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
-    #     device=DEVICE,
-    # )
+    separator = nussl.separation.deep.DeepMaskEstimation(
+        nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
+        device=DEVICE,
+    )
 
     plot_validation_loss()
     evaluate(output_folder, separator)
