@@ -19,6 +19,7 @@ audio_files = mp3_files + wav_files
 for fname in audio_files:
   target_name = os.path.join(AUDIO_DIR, os.path.basename(fname).replace(' ', '_'))
   print('Copying {} to {}'.format(fname, target_name))
+  print("command: ", "cp " + fname + " " + target_name")
   os.system("cp " + fname + " " + target_name)
 
 # Preprocess raw audio into TFRecord dataset
@@ -46,7 +47,7 @@ else:
     if DRIVE_DIR:
         os.system("mkdir " + drive_data_dir)
         print('Saving to {}'.format(drive_data_dir))
-        os.system("cp " + TRAIN_TFRECORD_FILEPATTERN + "$drive_data_dir")
+        os.system("cp " + TRAIN_TFRECORD_FILEPATTERN + drive_data_dir + "/")
 
 # data_provider = ddsp.training.data.TFRecordProvider(TRAIN_TFRECORD_FILEPATTERN)
 # dataset = data_provider.get_dataset(shuffle=False)
