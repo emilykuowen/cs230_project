@@ -75,6 +75,8 @@ class MaskInference(nn.Module):
                 }
             }
         }
+
+        print(modules)
         
         # Step 2b: Define the connections between input and output.
         # Here, the mix_magnitude key is the only input to the model.
@@ -163,7 +165,7 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
 
     nf = stft_params.window_length // 2 + 1
     global model
-    model = MaskInference.build(nf, 1, 50, 1, condition, rnn_type='gru', bidirectional=True, \
+    model = MaskInference.build(nf, 1, 50, 1, condition, rnn_type='lstm', bidirectional=True, \
     dropout=0.0, num_sources=1, activation='sigmoid')
     model = model.to(DEVICE)
     global optimizer

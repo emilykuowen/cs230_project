@@ -30,10 +30,12 @@ class ConditionedRecurrentStack(nn.Module):
         if rnn_type not in ['lstm', 'gru']:
             raise ValueError("rnn_type must be one of ['lstm', 'gru']!")
 
+        # ignoring hidden_size!!
+        print("Ignoring hidden_size - using len(condition) instead")
         RNNClass = nn.LSTM if rnn_type == 'lstm' else nn.GRU
         self.add_module(
             'rnn', RNNClass(
-                num_features, hidden_size, num_layers, batch_first=batch_first,
+                num_features, len(condition), num_layers, batch_first=batch_first,
                 bidirectional=bidirectional, dropout=dropout))
 
         if init_forget:
@@ -50,7 +52,6 @@ class ConditionedRecurrentStack(nn.Module):
                     start, end = n // 4, n // 2
                     bias.data[start:end].fill_(1.)
         print("Initialized ConditionedRecurrantStack!! :D")
-        print(rnn_type)
 
     def forward(self, data):
         """
@@ -63,6 +64,18 @@ class ConditionedRecurrentStack(nn.Module):
             (num_batch, sequence_length, hidden_size or hidden_size*2 if 
             bidirectional=True)
         """
+        # # FiLM parameters needed for each channel in the feature map
+        # # hence, feature_size defined to be same as no. of channels
+        # self.feature_size = feature_maps.data.shape[1]
+
+        # # linear transformation of context to FiLM parameters
+        # film_params = self.fc(context, out_planes=2 * self.feature_size, activation=None)
+
+        # gammas, betas = self.film4d(feature_maps, film_params) if len(feature_maps.data.shape) == 4 else self.film3d(feature_maps, film_params)
+        # # modulate the feature map with FiLM parameters
+        # output = (1 + gammas) * feature_maps + betas
+        print(data.shape)
+
         shape = data.shape
         data = data.reshape(shape[0], shape[1], -1)
         self.rnn.flatten_parameters()
