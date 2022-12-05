@@ -35,7 +35,7 @@ class ConditionedRecurrentStack(nn.Module):
         RNNClass = nn.LSTM if rnn_type == 'lstm' else nn.GRU
         self.add_module(
             'rnn', RNNClass(
-                num_features, len(condition), num_layers, batch_first=batch_first,
+                num_features, hidden_size, num_layers, batch_first=batch_first,
                 bidirectional=bidirectional, dropout=dropout))
 
         if init_forget:
