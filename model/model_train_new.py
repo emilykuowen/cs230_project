@@ -7,8 +7,8 @@ from nussl.datasets import transforms as nussl_tfm
 from common.models import MaskInference
 from common import utils, data
 from pathlib import Path
-# from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
-from separation_model import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding, ConditionedRecurrentStack
+from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
+from separation_model import ConditionedRecurrentStack
 from torch import nn
 import matplotlib.pyplot as plt
 import json
@@ -24,7 +24,7 @@ class MaskInference(nn.Module):
         
         self.amplitude_to_db = AmplitudeToDB()
         self.input_normalization = BatchNorm(num_features)
-        self.recurrent_stack = ConditionedRecurrentStack(
+        self.recurrent_stack = RecurrentStack(
             num_features * num_audio_channels, hidden_size, 
             num_layers, bool(bidirectional), dropout
         )
@@ -43,7 +43,7 @@ class MaskInference(nn.Module):
         estimates = mix_magnitude.unsqueeze(-1) * mask
         
         output = {
-            # 'mask': mask,
+            'mask': mask,
             'estimates': estimates
         }
         return output
@@ -161,7 +161,7 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     global model
     model = MaskInference.build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
     # maskObject = MaskInference(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
-
+    
     model = model.to(DEVICE)
     global optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -272,13 +272,13 @@ if __name__ == "__main__":
     # batch_size = number of training examples in a batch
     # max_epoch = total number of epochs ran in training
     # epoch_length = number of batches in one epoch
-    train(output_folder, batch_size=10, max_epochs=1, epoch_length=20)
+    # train(output_folder, batch_size=10, max_epochs=30, epoch_length=20)
 
-    # separator = nussl.separation.deep.DeepMaskEstimation(
-    #     nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
-    #     device=DEVICE,
-    # )
+    separator = nussl.separation.deep.DeepMaskEstimation(
+        nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
+        device=DEVICE,
+    )
 
-    # plot_validation_loss()
-    # evaluate(output_folder, separator)
-    # convert_output_to_wav(separator, 0)
+    plot_validation_loss()
+    evaluate(output_folder, separator)
+    convert_output_to_wav(separator, 0)
