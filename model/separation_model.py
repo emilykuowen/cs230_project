@@ -26,7 +26,7 @@ class ConditionedRecurrentStack(nn.Module):
     """
     def __init__(self, num_features, hidden_size, num_layers, bidirectional, dropout,
                  rnn_type='lstm', batch_first=True, init_forget=True):
-        super(RecurrentStack, self).__init__()
+        super(ConditionedRecurrentStack, self).__init__()
         if rnn_type not in ['lstm', 'gru']:
             raise ValueError("rnn_type must be one of ['lstm', 'gru']!")
 
