@@ -61,6 +61,7 @@ class ConditionedRecurrentStack(nn.Module):
             (num_batch, sequence_length, hidden_size or hidden_size*2 if 
             bidirectional=True)
         """
+        print("Moving foprward in the rnn!!")
         shape = data.shape
         data = data.reshape(shape[0], shape[1], -1)
         self.rnn.flatten_parameters()
