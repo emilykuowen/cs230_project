@@ -20,10 +20,10 @@ class DynamicFC(nn.Module):
         self.linear = None
         self.initialized = False
 
-    def forward(self, embedding, out_planes=1, activation=None, use_bias=True):
+    def forward(self, data, out_planes=1, activation=None, use_bias=True):
         """
         Arguments:
-            embedding : input to the MLP (N,*,C)
+            data : input to the MLP (N,*,C)
             out_planes : total channels in the output
             activation : 'relu' or 'tanh'
             use_bias : True / False
@@ -31,7 +31,7 @@ class DynamicFC(nn.Module):
             out : output of the MLP (N,*,out_planes)
         """
 
-        self.in_planes = embedding.data.shape[-1]
+        self.in_planes = data.shape[-1]
         self.out_planes = out_planes
         self.use_bias = use_bias
 
