@@ -89,7 +89,9 @@ class ConditionedRecurrentStack(nn.Module):
                 num_features, hidden_size, num_layers, batch_first=batch_first,
                 bidirectional=bidirectional, dropout=dropout))
 
-        self.condition = condition
+        self.condition = torch.FloatTensor(condition)
+        if torch.cuda.is_available():
+            condition = condition.cuda()
         self.fc = DynamicFC()
 
         if init_forget:
@@ -113,7 +115,6 @@ class ConditionedRecurrentStack(nn.Module):
         # stack the FiLM parameters across the temporal dimension
         film_params = torch.stack([film_params] * 1, dim=0)
         film_params = torch.stack([film_params] * self.height, dim=2)
-        print(film_params.shape)
 
         # slice the film_params to get betas and gammas
         gammas = film_params[:, :self.channels, :]
@@ -160,6 +161,8 @@ class ConditionedRecurrentStack(nn.Module):
         print()
 
         gammas, betas = self.film4d(data, film_params) if len(data.shape) == 4 else self.film3d(data, film_params)
+        print("gamma beta shape", gammas.shape, betas.shape)
+        print()
         # # modulate the feature map with FiLM parameters
         output = (1 + gammas) * data + betas
 
