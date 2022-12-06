@@ -50,7 +50,7 @@ class DynamicFC(nn.Module):
                         nn.init.constant_(m.bias, 0.1)
             self.initialized = True
 
-        out = self.linear(embedding)
+        out = self.linear(data)
         if self.activation is not None:
             out = self.activation(out)
 
