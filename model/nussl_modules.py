@@ -89,9 +89,11 @@ class ConditionedRecurrentStack(nn.Module):
                 num_features, hidden_size, num_layers, batch_first=batch_first,
                 bidirectional=bidirectional, dropout=dropout))
 
-        self.condition = torch.FloatTensor(condition)
         if torch.cuda.is_available():
+            self.condition = torch.FloatTensor(condition,device='cuda')
             condition = condition.cuda()
+        else:
+            self.condition = torch.FloatTensor(condition)
         self.fc = DynamicFC()
 
         if init_forget:
