@@ -50,22 +50,17 @@ else:
         print('Saving to {}'.format(drive_data_dir))
         os.system("cp " + TRAIN_TFRECORD_FILEPATTERN + " \"" + drive_data_dir + "\"/")
 
-data_provider = ddsp.training.data.TFRecordProvider(TRAIN_TFRECORD_FILEPATTERN)
-dataset = data_provider.get_dataset(shuffle=False)
-PICKLE_FILE_PATH = os.path.join(SAVE_DIR, 'dataset_statistics.pkl')
-
-tb.notebook.start('--logdir "{}"'.format(SAVE_DIR))
-
-ddsp_run_command = "ddsp_run \
+"""
+Run the following command in terminal:
+ddsp_run \
   --mode=train \
   --alsologtostderr \
-  --save_dir=" + SAVE_DIR + " \
-  --allow_memory_growth=True \
+  --save_dir="../data/train/bass/ddsp-solo-instrument" \
   --gin_file=models/solo_instrument.gin \
   --gin_file=datasets/tfrecord.gin \
-  --gin_param=\"TFRecordProvider.file_pattern='data/train.tfrecord*'\" \
-  --gin_param=\"batch_size=16\" \
-  --gin_param=\"train_util.train.num_steps=30000\" \
-  --gin_param=\"train_util.train.steps_per_save=300\" \
-  --gin_param=\"trainers.Trainer.checkpoints_to_keep=10\""
-os.system(ddsp_run_command)
+  --gin_param="TFRecordProvider.file_pattern='data/train.tfrecord*'" \
+  --gin_param="batch_size=16" \
+  --gin_param="train_util.train.num_steps=30000" \
+  --gin_param="train_util.train.steps_per_save=300" \
+  --gin_param="trainers.Trainer.checkpoints_to_keep=10"
+"""
