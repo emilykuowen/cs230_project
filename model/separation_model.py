@@ -57,7 +57,7 @@ class DynamicFC(nn.Module):
         return out
         
     
-    class ConditionedRecurrentStack(nn.Module):
+class ConditionedRecurrentStack(nn.Module):
     """
     Creates a stack of RNNs used to process an audio sequence represented as 
     (sequence_length, num_features). With bidirectional = True, hidden_size = 600, 
