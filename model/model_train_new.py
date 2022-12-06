@@ -161,7 +161,7 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
         fg_path=val_folder, num_mixtures=10, coherent_prob=1.0)
     val_dataloader = torch.utils.data.DataLoader(val_data, num_workers=1, batch_size=batch_size)
     
-    condition=[1,0,0,0]
+    condition=np.array([1,0,0,0])
 
     nf = stft_params.window_length // 2 + 1
     global model
