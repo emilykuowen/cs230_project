@@ -71,6 +71,8 @@ class MaskInference(nn.Module):
                 }
             }
         }
+
+        print(modules)
         
         # Step 2b: Define the connections between input and output.
         # Here, the mix_magnitude key is the only input to the model.
