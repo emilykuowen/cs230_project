@@ -146,6 +146,7 @@ class ConditionedRecurrentStack(nn.Module):
         # # FiLM parameters needed for each channel in the feature map
         # # hence, feature_size defined to be same as no. of channels
         shape = data.shape
+        data = data.reshape(shape[0], shape[1], -1)
 
         print("Data shape", data.shape)
         print()
@@ -163,7 +164,6 @@ class ConditionedRecurrentStack(nn.Module):
         print("Output shape", output.shape)
         print()
 
-        data = data.reshape(shape[0], shape[1], -1)
         self.rnn.flatten_parameters()
         data = self.rnn(data)[0]
         return data
