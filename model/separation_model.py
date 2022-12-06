@@ -111,11 +111,13 @@ class ConditionedRecurrentStack(nn.Module):
         self.batch_size, self.channels, self.height = data.shape
 
         # stack the FiLM parameters across the temporal dimension
+        film_params = torch.stack([film_params] * self.batch_size, dim=1)
         film_params = torch.stack([film_params] * self.height, dim=2)
+        print(film_params.shape)
 
         # slice the film_params to get betas and gammas
-        gammas = film_params[:, :self.feature_size, :]
-        betas = film_params[:, self.feature_size:, :]
+        gammas = film_params[:, :self.channels, :]
+        betas = film_params[:, self.channels:, :]
 
         return gammas, betas
 
@@ -127,8 +129,8 @@ class ConditionedRecurrentStack(nn.Module):
         film_params = torch.stack([film_params] * self.width, dim=3)
 
         # slice the film_params to get betas and gammas
-        gammas = film_params[:, :self.feature_size, :, :]
-        betas = film_params[:, self.feature_size:, :, :]
+        gammas = film_params[:, :self.channels, :, :]
+        betas = film_params[:, self.channels:, :, :]
 
         return gammas, betas
         
