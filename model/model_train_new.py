@@ -162,6 +162,8 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     val_dataloader = torch.utils.data.DataLoader(val_data, num_workers=1, batch_size=batch_size)
     
     condition=torch.from_numpy(np.array([1,0,0,0]))
+    if DEVICE=="cuda":
+        condition = condition.cuda()
 
     nf = stft_params.window_length // 2 + 1
     global model
