@@ -60,6 +60,7 @@ ddsp_run_command = "ddsp_run \
   --mode=train \
   --alsologtostderr \
   --save_dir=" + SAVE_DIR + " \
+  --allow_memory_growth=True \
   --gin_file=models/solo_instrument.gin \
   --gin_file=datasets/tfrecord.gin \
   --gin_param=\"TFRecordProvider.file_pattern='data/train.tfrecord*'\" \
