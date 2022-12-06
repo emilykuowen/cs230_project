@@ -6,7 +6,58 @@ import librosa
 import numpy as np
 from torch.utils.checkpoint import checkpoint
 
-class ConditionedRecurrentStack(nn.Module):
+class DynamicFC(nn.Module):
+
+    def __init__(self):
+        super(DynamicFC, self).__init__()
+
+        self.in_planes = None
+        self.out_planes = None
+        self.activation = None
+        self.use_bias = None
+
+        self.activation = None
+        self.linear = None
+        self.initialized = False
+
+    def forward(self, embedding, out_planes=1, activation=None, use_bias=True):
+        """
+        Arguments:
+            embedding : input to the MLP (N,*,C)
+            out_planes : total channels in the output
+            activation : 'relu' or 'tanh'
+            use_bias : True / False
+        Returns:
+            out : output of the MLP (N,*,out_planes)
+        """
+
+        self.in_planes = embedding.data.shape[-1]
+        self.out_planes = out_planes
+        self.use_bias = use_bias
+
+        if not self.initialized:
+            self.linear = nn.Linear(self.in_planes, self.out_planes, bias=use_bias).cuda()
+            if activation == 'relu':
+                self.activation = nn.ReLU(inplace=True).cuda()
+            elif activation == 'tanh':
+                self.activation = nn.Tanh().cuda()
+
+            for m in self.modules():
+                if isinstance(m, nn.Linear):
+                    nn.init.xavier_uniform_(m.weight)
+                    print("initialize conditioning")
+                    if self.use_bias:
+                        nn.init.constant_(m.bias, 0.1)
+            self.initialized = True
+
+        out = self.linear(embedding)
+        if self.activation is not None:
+            out = self.activation(out)
+
+        return out
+        
+    
+    class ConditionedRecurrentStack(nn.Module):
     """
     Creates a stack of RNNs used to process an audio sequence represented as 
     (sequence_length, num_features). With bidirectional = True, hidden_size = 600, 
@@ -30,13 +81,15 @@ class ConditionedRecurrentStack(nn.Module):
         if rnn_type not in ['lstm', 'gru']:
             raise ValueError("rnn_type must be one of ['lstm', 'gru']!")
 
-        # ignoring hidden_size!!
-        print("Ignoring hidden_size - using len(condition) instead")
+        # print("Ignoring hidden_size - using len(condition) instead")
         RNNClass = nn.LSTM if rnn_type == 'lstm' else nn.GRU
         self.add_module(
             'rnn', RNNClass(
                 num_features, hidden_size, num_layers, batch_first=batch_first,
                 bidirectional=bidirectional, dropout=dropout))
+
+        self.condition = condition
+        self.fc = DynamicFC()
 
         if init_forget:
             for name, param in self.rnn.named_parameters():
@@ -53,6 +106,31 @@ class ConditionedRecurrentStack(nn.Module):
                     bias.data[start:end].fill_(1.)
         print("Initialized ConditionedRecurrantStack!! :D")
 
+    def film3d(self, data, film_params):
+        self.batch_size, self.channels, self.height = data.shape
+
+        # stack the FiLM parameters across the temporal dimension
+        film_params = torch.stack([film_params] * self.height, dim=2)
+
+        # slice the film_params to get betas and gammas
+        gammas = film_params[:, :self.feature_size, :]
+        betas = film_params[:, self.feature_size:, :]
+
+        return gammas, betas
+
+    def film4d(self, data, film_params):
+        self.batch_size, self.channels, self.height, self.width = data.shape
+
+        # stack the FiLM parameters across the spatial dimension
+        film_params = torch.stack([film_params] * self.height, dim=2)
+        film_params = torch.stack([film_params] * self.width, dim=3)
+
+        # slice the film_params to get betas and gammas
+        gammas = film_params[:, :self.feature_size, :, :]
+        betas = film_params[:, self.feature_size:, :, :]
+
+        return gammas, betas
+        
     def forward(self, data):
         """
         Args:
@@ -66,17 +144,18 @@ class ConditionedRecurrentStack(nn.Module):
         """
         # # FiLM parameters needed for each channel in the feature map
         # # hence, feature_size defined to be same as no. of channels
-        # self.feature_size = feature_maps.data.shape[1]
+        shape = data.shape
 
         # # linear transformation of context to FiLM parameters
-        # film_params = self.fc(context, out_planes=2 * self.feature_size, activation=None)
+        film_params = self.fc(self.condition, out_planes=2 * shape[1], activation=None)
 
-        # gammas, betas = self.film4d(feature_maps, film_params) if len(feature_maps.data.shape) == 4 else self.film3d(feature_maps, film_params)
+        gammas, betas = self.film4d(data, film_params) if len(data.shape) == 4 else self.film3d(data, film_params)
         # # modulate the feature map with FiLM parameters
-        # output = (1 + gammas) * feature_maps + betas
-        print(data.shape)
+        output = (1 + gammas) * feature_maps + betas
 
-        shape = data.shape
+        print("Data shape", data.shape)
+        print("Output shape", output.shape)
+
         data = data.reshape(shape[0], shape[1], -1)
         self.rnn.flatten_parameters()
         data = self.rnn(data)[0]
