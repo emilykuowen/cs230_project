@@ -50,6 +50,7 @@ class DynamicFC(nn.Module):
                         nn.init.constant_(m.bias, 0.1)
             self.initialized = True
 
+        print(data.dtype(), data.type())
         out = self.linear(data)
         if self.activation is not None:
             out = self.activation(out)
