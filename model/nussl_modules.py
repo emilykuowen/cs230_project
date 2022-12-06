@@ -172,7 +172,7 @@ class ConditionedRecurrentStack(nn.Module):
         # print()
 
         self.rnn.flatten_parameters()
-        data = self.rnn(data)[0]
+        data = self.rnn(output)[0]
         return data
 
 class AmplitudeToDB(nn.Module):
