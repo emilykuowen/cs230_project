@@ -111,7 +111,7 @@ class ConditionedRecurrentStack(nn.Module):
         self.batch_size, self.channels, self.height = data.shape
 
         # stack the FiLM parameters across the temporal dimension
-        film_params = torch.stack([film_params] * self.batch_size, dim=1)
+        film_params = torch.stack([film_params] * 1, dim=0)
         film_params = torch.stack([film_params] * self.height, dim=2)
         print(film_params.shape)
 
@@ -161,7 +161,7 @@ class ConditionedRecurrentStack(nn.Module):
 
         gammas, betas = self.film4d(data, film_params) if len(data.shape) == 4 else self.film3d(data, film_params)
         # # modulate the feature map with FiLM parameters
-        output = (1 + gammas) * feature_maps + betas
+        output = (1 + gammas) * data + betas
 
         print("Output shape", output.shape)
         print()
