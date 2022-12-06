@@ -45,12 +45,12 @@ class DynamicFC(nn.Module):
             for m in self.modules():
                 if isinstance(m, nn.Linear):
                     nn.init.xavier_uniform_(m.weight)
-                    print("initialize conditioning")
+                    print("Initializing conditioning!!!!")
                     if self.use_bias:
                         nn.init.constant_(m.bias, 0.1)
             self.initialized = True
 
-        print(data.dtype, data.type())
+        # print(data.dtype, data.type())
         out = self.linear(data)
         if self.activation is not None:
             out = self.activation(out)
@@ -153,23 +153,23 @@ class ConditionedRecurrentStack(nn.Module):
         shape = data.shape
         data = data.reshape(shape[0], shape[1], -1)
 
-        print("Data shape", data.shape)
-        print()
+        # print("Data shape", data.shape)
+        # print()
 
         # # linear transformation of context to FiLM parameters
         film_params = self.fc(self.condition, out_planes=2 * shape[1], activation=None)
 
-        print("Film shape", film_params.shape)
-        print()
+        # print("Film shape", film_params.shape)
+        # print()
 
         gammas, betas = self.film4d(data, film_params) if len(data.shape) == 4 else self.film3d(data, film_params)
-        print("gamma beta shape", gammas.shape, betas.shape)
-        print()
+        # print("gamma beta shape", gammas.shape, betas.shape)
+        # print()
         # # modulate the feature map with FiLM parameters
         output = (1 + gammas) * data + betas
 
-        print("Output shape", output.shape)
-        print()
+        # print("Output shape", output.shape)
+        # print()
 
         self.rnn.flatten_parameters()
         data = self.rnn(data)[0]
