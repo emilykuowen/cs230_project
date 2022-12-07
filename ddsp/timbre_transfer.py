@@ -140,10 +140,11 @@ start_time = time.time()
 outputs = model(af, training=False)
 print("output keys: ", outputs.keys())
 print("harmonic distribution: ", outputs['harmonic_distribution'])
+harmonic_distribution = outputs['harmonic_distribution'].numpy()
+print("numpy: ", harmonic_distribution)
 
 audio_gen = model.get_audio_from_outputs(outputs)
 audio_gen = np.transpose(audio_gen.numpy())
-print(audio_gen.shape)
 sf.write('bass.wav', audio_gen, sample_rate)
 
 print('Prediction took %.1f seconds' % (time.time() - start_time))
