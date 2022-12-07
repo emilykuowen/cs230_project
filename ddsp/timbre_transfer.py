@@ -6,8 +6,8 @@ import copy
 import os
 import time
 
-print('Installing from pip package...')
-os.system("!pip install -qU ddsp==1.6.5 \"hmmlearn<=0.2.7\"")
+# print('Installing from pip package...')
+# os.system("!pip install -qU ddsp==1.6.5 \"hmmlearn<=0.2.7\"")
 
 import crepe
 import ddsp
@@ -36,7 +36,7 @@ Notes:
 """
 
 filename = 'piano.wav'
-sample_rate, audio = wavfile.read('piano.wav')
+audio, sample_rate = librosa.load(filename)
 
 # Setup the session.
 ddsp.spectral_ops.reset_crepe()
