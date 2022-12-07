@@ -28,6 +28,7 @@ import pickle
 import tensorflow.compat.v2 as tf
 import tensorflow_datasets as tfds
 from scipy.io import wavfile
+import soundfile as sf
 
 """
 Notes:
@@ -141,6 +142,6 @@ print("output keys: ", outputs.keys())
 print("harmonic distribution: ", outputs['harmonic_distribution'])
 
 audio_gen = model.get_audio_from_outputs(outputs)
-librosa.output.write_wav('piano_output.wav', audio_gen, sample_rate)
+sf.write('bass_output.wav', audio_gen, sample_rate)
 
 print('Prediction took %.1f seconds' % (time.time() - start_time))
