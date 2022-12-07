@@ -141,7 +141,7 @@ outputs = model(af, training=False)
 print("output keys: ", outputs.keys())
 print("harmonic distribution: ", outputs['harmonic_distribution'])
 harmonic_distribution = outputs['harmonic_distribution'].numpy()
-print("numpy: ", harmonic_distribution)
+np.save('bass_harmonic_distribution.npy', harmonic_distribution)
 
 audio_gen = model.get_audio_from_outputs(outputs)
 audio_gen = np.transpose(audio_gen.numpy())
