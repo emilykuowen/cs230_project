@@ -37,6 +37,9 @@ Notes:
 
 filename = 'piano.wav'
 audio, sample_rate = librosa.load(filename)
+if len(audio.shape) == 1:
+  audio = audio[np.newaxis, :]
+print("audio shape = ", audio.shape)
 
 # Setup the session.
 ddsp.spectral_ops.reset_crepe()
