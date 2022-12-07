@@ -13,15 +13,15 @@ os.system("mkdir -p " + AUDIO_DIR)
 SAVE_DIR = os.path.join(DRIVE_DIR, 'ddsp-solo-instrument')
 os.system("mkdir -p " + SAVE_DIR)
 
-# mp3_files = glob.glob(os.path.join(DRIVE_DIR, '*.mp3'))
-# wav_files = glob.glob(os.path.join(DRIVE_DIR, '*.wav'))
-# audio_files = mp3_files + wav_files
+mp3_files = glob.glob(os.path.join(DRIVE_DIR, '*.mp3'))
+wav_files = glob.glob(os.path.join(DRIVE_DIR, '*.wav'))
+audio_files = mp3_files + wav_files
 
-# for fname in audio_files:
-#   target_name = os.path.join(AUDIO_DIR, os.path.basename(fname).replace(' ', '_'))
-#   print('Copying {} to {}'.format(fname, target_name))
-#   cp_command = "cp \"" + fname + "\" " + target_name
-#   os.system(cp_command)
+for fname in audio_files:
+  target_name = os.path.join(AUDIO_DIR, os.path.basename(fname).replace(' ', '_'))
+  print('Copying {} to {}'.format(fname, target_name))
+  cp_command = "cp \"" + fname + "\" " + target_name
+  os.system(cp_command)
 
 # Preprocess raw audio into TFRecord dataset
 TRAIN_TFRECORD = 'data/train.tfrecord'

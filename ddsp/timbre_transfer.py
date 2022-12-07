@@ -48,7 +48,6 @@ audio_features['loudness_db'] = audio_features['loudness_db'].astype(np.float32)
 audio_features_mod = None
 print('Audio features took %.1f seconds' % (time.time() - start_time))
 
-
 TRIM = -15
 # Plot Features.
 fig, ax = plt.subplots(nrows=3, 
@@ -64,4 +63,4 @@ ax[1].set_ylabel('f0 [midi]')
 ax[2].plot(audio_features['f0_confidence'][:TRIM])
 ax[2].set_ylabel('f0 confidence')
 _ = ax[2].set_xlabel('Time step [frame]')
-
+plt.savefig('piano_audio_features.png')
