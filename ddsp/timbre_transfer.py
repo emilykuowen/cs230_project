@@ -138,6 +138,9 @@ af = audio_features if audio_features_mod is None else audio_features_mod
 start_time = time.time()
 outputs = model(af, training=False)
 print("output keys: ", outputs.keys())
-print("outputs: ", outputs)
+print("harmonic distribution: ", outputs['harmonic_distribution'])
+
 audio_gen = model.get_audio_from_outputs(outputs)
+librosa.output.write_wav('piano_output.wav', audio_gen, sample_rate)
+
 print('Prediction took %.1f seconds' % (time.time() - start_time))
