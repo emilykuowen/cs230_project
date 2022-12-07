@@ -45,12 +45,12 @@ class DynamicFC(nn.Module):
             for m in self.modules():
                 if isinstance(m, nn.Linear):
                     nn.init.xavier_uniform_(m.weight)
-                    print("initialize conditioning")
+                    print("Initializing conditioning!!!!")
                     if self.use_bias:
                         nn.init.constant_(m.bias, 0.1)
             self.initialized = True
 
-        print(data.dtype, data.type())
+        # print(data.dtype, data.type())
         out = self.linear(data)
         if self.activation is not None:
             out = self.activation(out)
@@ -89,7 +89,11 @@ class ConditionedRecurrentStack(nn.Module):
                 num_features, hidden_size, num_layers, batch_first=batch_first,
                 bidirectional=bidirectional, dropout=dropout))
 
-        self.condition = condition
+        if torch.cuda.is_available():
+            condition = torch.cuda.FloatTensor(condition)
+            self.condition = condition.cuda()
+        else:
+            self.condition = torch.FloatTensor(condition)
         self.fc = DynamicFC()
 
         if init_forget:
@@ -111,9 +115,8 @@ class ConditionedRecurrentStack(nn.Module):
         self.batch_size, self.channels, self.height = data.shape
 
         # stack the FiLM parameters across the temporal dimension
-        film_params = torch.stack([film_params] * self.batch_size, dim=1)
+        film_params = torch.stack([film_params] * 1, dim=0)
         film_params = torch.stack([film_params] * self.height, dim=2)
-        print(film_params.shape)
 
         # slice the film_params to get betas and gammas
         gammas = film_params[:, :self.channels, :]
@@ -150,24 +153,26 @@ class ConditionedRecurrentStack(nn.Module):
         shape = data.shape
         data = data.reshape(shape[0], shape[1], -1)
 
-        print("Data shape", data.shape)
-        print()
+        # print("Data shape", data.shape)
+        # print()
 
         # # linear transformation of context to FiLM parameters
         film_params = self.fc(self.condition, out_planes=2 * shape[1], activation=None)
 
-        print("Film shape", film_params.shape)
-        print()
+        # print("Film shape", film_params.shape)
+        # print()
 
         gammas, betas = self.film4d(data, film_params) if len(data.shape) == 4 else self.film3d(data, film_params)
+        # print("gamma beta shape", gammas.shape, betas.shape)
+        # print()
         # # modulate the feature map with FiLM parameters
-        output = (1 + gammas) * feature_maps + betas
+        output = (1 + gammas) * data + betas
 
-        print("Output shape", output.shape)
-        print()
+        # print("Output shape", output.shape)
+        # print()
 
         self.rnn.flatten_parameters()
-        data = self.rnn(data)[0]
+        data = self.rnn(output)[0]
         return data
 
 class AmplitudeToDB(nn.Module):
