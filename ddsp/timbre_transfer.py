@@ -39,7 +39,6 @@ filename = 'piano.wav'
 audio, sample_rate = librosa.load(filename)
 if len(audio.shape) == 1:
   audio = audio[np.newaxis, :]
-print("audio shape = ", audio.shape)
 
 # Setup the session.
 ddsp.spectral_ops.reset_crepe()
@@ -131,3 +130,13 @@ model.restore(ckpt)
 start_time = time.time()
 _ = model(audio_features, training=False)
 print('Restoring model took %.1f seconds' % (time.time() - start_time))
+
+audio_features_mod = None
+af = audio_features if audio_features_mod is None else audio_features_mod
+
+# Run a batch of predictions.
+start_time = time.time()
+outputs = model(af, training=False)
+print("outputs: ", outputs)
+audio_gen = model.get_audio_from_outputs(outputs)
+print('Prediction took %.1f seconds' % (time.time() - start_time))
