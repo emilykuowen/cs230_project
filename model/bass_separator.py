@@ -141,10 +141,8 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     tfm = nussl_tfm.Compose([
-        #nussl_tfm.SumSources([['bass', 'drums', 'other']]),
         nussl_tfm.SumSources([['drums', 'other', 'vocals']]), 
         nussl_tfm.MagnitudeSpectrumApproximation(),
-        #nussl_tfm.IndexSources('source_magnitudes', 1),
         nussl_tfm.IndexSources('source_magnitudes', 0),
         nussl_tfm.ToSeparationModel(),
     ])
@@ -186,28 +184,32 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     )
 
 
-def evaluate(output_folder, separator):
+def evaluate(separator, output_path):
     tfm = nussl_tfm.Compose([
-        #nussl_tfm.SumSources([['bass', 'drums', 'other']]),
         nussl_tfm.SumSources([['drums', 'other', 'vocals']]),
     ])
 
     test_dataset = nussl.datasets.MUSDB18(subsets=['test'], transform=tfm)
+    output_folder = Path(output_path).absolute()
+    output_folder.mkdir(exist_ok=True)
 
     # TODO: change the for loop to loop through the whole test dataset when doing final evaluations
     # for i in range(len(test_dataset)):
     for i in range(5):
         item = test_dataset[i]
         separator.audio_signal = item['mix']
+        filename = item['mix'].file_name
         estimates = separator()
 
         source_keys = list(item['sources'].keys())
         estimates = {
             'bass': estimates[0],
             'drums+other+vocals': item['mix'] - estimates[0]
-            #'vocals': estimates[0],
-            #'bass+drums+other': item['mix'] - estimates[0]
         }
+
+        # write audio output to wav
+        estimates['bass'].write_audio_to_file(output_path + filename + '_bass.wav')
+        estimates['drums+other+vocals'].write_audio_to_file(output_path + filename + '_other.wav')
 
         sources = [item['sources'][k] for k in source_keys]
         estimates = [estimates[k] for k in source_keys]
@@ -216,22 +218,18 @@ def evaluate(output_folder, separator):
             sources, estimates, source_labels=source_keys
         )
         scores = evaluator.evaluate()
-        # TODO: add a subfolder to store the .json files
-        output_folder = Path(output_folder).absolute()
-        output_folder.mkdir(exist_ok=True)
         output_file = output_folder / sources[0].file_name.replace('wav', 'json')
         with open(output_file, 'w') as f:
             json.dump(scores, f, indent=4)
     
-    # TODO: check if the path here needs to be changed to aggregate the .json files
-    json_files = glob.glob(f"*.json")
+    json_files = glob.glob(str(output_folder) + "/*.json")
     df = nussl.evaluation.aggregate_score_files(json_files, aggregator=np.nanmedian)
     nussl.evaluation.associate_metrics(separator.model, df, test_dataset)
     report_card = nussl.evaluation.report_card(df, report_each_source=True)
     print(report_card)
     
 
-def plot_validation_loss(filepath='checkpoints/best.model.pth'):
+def plot_validation_loss(filepath, output_path):
     model_checkpoint = torch.load(filepath, map_location=torch.device('cpu'))
     # print("trainer.state_dict")
     # print(model_checkpoint['metadata']['trainer.state_dict'])
@@ -240,10 +238,10 @@ def plot_validation_loss(filepath='checkpoints/best.model.pth'):
     plt.xlabel('# of Epochs')
     plt.ylabel('Validation loss')
     plt.title('Validation Loss History of Our Mask Inference Model')
-    plt.show()
+    plt.savefig(output_path + 'validation_loss.png')
 
 
-def convert_output_to_wav(separator, song_index):
+def convert_output_to_wav(separator, song_index, output_path):
     test_folder = "~/.nussl/tutorial/test/"
     # TODO: check if there's a way to add a random seed to generate the same mix every time
     test_data = data.mixer(stft_params, transform=None, fg_path=test_folder, num_mixtures=MAX_MIXTURES, coherent_prob=1.0)
@@ -255,8 +253,8 @@ def convert_output_to_wav(separator, song_index):
     estimates.append(item['mix'] - estimates[0])
     stem1 = estimates[0]
     stem2 = estimates[1]
-    stem1.write_audio_to_file('bass.wav')
-    stem2.write_audio_to_file('accompaniment.wav')
+    stem1.write_audio_to_file(output_path + 'bass.wav')
+    stem2.write_audio_to_file(output_path + 'accompaniment.wav')
 
 
 if __name__ == "__main__":
@@ -264,7 +262,8 @@ if __name__ == "__main__":
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     MAX_MIXTURES = int(1e8) # We'll set this to some impossibly high number for on the fly mixing.
     stft_params = nussl.STFTParams(window_length=512, hop_length=128, window_type='sqrt_hann')
-    output_folder = Path('.').absolute()
+    output_path = 'bass_output/'
+    output_folder = Path(output_path).absolute()
     
     dataset_path = str(Path.home()) + '/.nussl/tutorial'
     # Download dataset if it hasn't been downloaded
@@ -274,13 +273,14 @@ if __name__ == "__main__":
     # batch_size = number of training examples in a batch
     # max_epoch = total number of epochs ran in training
     # epoch_length = number of batches in one epoch
-    train(output_folder, batch_size=10, max_epochs=10, epoch_length=20)
+    train(output_folder, batch_size=10, max_epochs=30, epoch_length=20)
 
+    checkpoint_path = output_path + 'checkpoints/best.model.pth'
     separator = nussl.separation.deep.DeepMaskEstimation(
-        nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
+        nussl.AudioSignal(), model_path=checkpoint_path,
         device=DEVICE,
     )
 
-    plot_validation_loss()
-    evaluate(output_folder, separator)
-    convert_output_to_wav(separator, 0)
+    plot_validation_loss(checkpoint_path, output_path)
+    evaluate(separator, output_path)
+    # convert_output_to_wav(separator, 0)
