@@ -162,7 +162,6 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     val_dataloader = torch.utils.data.DataLoader(val_data, num_workers=1, batch_size=batch_size)
     
     condition = np.load("../ddsp/bass_harmonic_distribution.npy")
-    print("conditionoing input shape: ", condition.shape)
     condition = condition.tolist()
 
     nf = stft_params.window_length // 2 + 1
@@ -204,7 +203,6 @@ def evaluate(output_folder, separator):
     # for i in range(len(test_dataset)):
     for i in range(5):
         item = test_dataset[i]
-        print(item['metadata'].keys())
         separator.audio_signal = item['mix']
         filename = item['mix'].file_name
         estimates = separator()
