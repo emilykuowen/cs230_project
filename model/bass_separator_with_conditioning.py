@@ -269,7 +269,8 @@ if __name__ == "__main__":
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     MAX_MIXTURES = int(1e8) # We'll set this to some impossibly high number for on the fly mixing.
     stft_params = nussl.STFTParams(window_length=512, hop_length=128, window_type='sqrt_hann')
-    output_folder = Path('output/').absolute()
+    output_path = 'bass_conditioning_output/'
+    output_folder = Path(output_path).absolute()
     
     dataset_path = str(Path.home()) + '/.nussl/tutorial'
     # Download dataset if it hasn't been downloaded
@@ -281,7 +282,7 @@ if __name__ == "__main__":
     # epoch_length = number of batches in one epoch
     train(output_folder, batch_size=10, max_epochs=1, epoch_length=20)
 
-    checkpoint_path = 'output/checkpoints/best.model.pth'
+    checkpoint_path = output_path + 'checkpoints/best.model.pth'
     separator = nussl.separation.deep.DeepMaskEstimation(
         nussl.AudioSignal(), model_path=checkpoint_path,
         device=DEVICE,
