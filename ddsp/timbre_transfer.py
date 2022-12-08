@@ -12,15 +12,10 @@ import time
 import crepe
 import ddsp
 import ddsp.training
-# from ddsp.colab.colab_utils import (
-#     auto_tune, get_tuning_factor, download, 
-#     play, record, specplot, upload, 
-#     DEFAULT_SAMPLE_RATE)
 from ddsp.training.postprocessing import (
     detect_notes, fit_quantile_transform
 )
 import gin
-# from google.colab import files
 import librosa
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,21 +25,18 @@ import tensorflow_datasets as tfds
 from scipy.io import wavfile
 import soundfile as sf
 
-"""
-Notes:
-- Audio should be monophonic (single instrument / voice)
-- Extracts fundmanetal frequency (f0) and loudness features. 
-"""
-
+# Audio should be monophonic (single instrument / voice)
 filename = 'piano.wav'
 audio, sample_rate = librosa.load(filename)
+print("audio shape: ", audio.shape)
 if len(audio.shape) == 1:
   audio = audio[np.newaxis, :]
+print("new audio shape: ", audio.shape)
 
-# Setup the session.
+# Setup the session
 ddsp.spectral_ops.reset_crepe()
 
-# Compute features.
+# Compute features
 start_time = time.time()
 audio_features = ddsp.training.metrics.compute_audio_features(audio)
 audio_features['loudness_db'] = audio_features['loudness_db'].astype(np.float32)
@@ -52,7 +44,7 @@ audio_features_mod = None
 print('Audio features took %.1f seconds' % (time.time() - start_time))
 
 TRIM = -15
-# Plot Features.
+# Plot features
 fig, ax = plt.subplots(nrows=3, 
                        ncols=1, 
                        sharex=True,
@@ -66,12 +58,10 @@ ax[1].set_ylabel('f0 [midi]')
 ax[2].plot(audio_features['f0_confidence'][:TRIM])
 ax[2].set_ylabel('f0 confidence')
 _ = ax[2].set_xlabel('Time step [frame]')
-plt.savefig('piano_audio_features.png')
+plt.savefig('audio_features.png')
 
 model_dir = "bass_model/"
-gin_file = os.path.join(model_dir, 'operative_config-0.gin')
-
-# Load the dataset statistics.
+# Load the dataset statistics
 DATASET_STATS = None
 dataset_stats_file = os.path.join(model_dir, 'dataset_statistics.pkl')
 print(f'Loading dataset statistics from {dataset_stats_file}')
@@ -79,17 +69,14 @@ try:
   if tf.io.gfile.exists(dataset_stats_file):
     with tf.io.gfile.GFile(dataset_stats_file, 'rb') as f:
       DATASET_STATS = pickle.load(f)
+      print("Dataset statistics: ", DATASET_STATS)
 except Exception as err:
   print('Loading dataset statistics from pickle failed: {}.'.format(err))
 
-# Parse gin config,
+gin_file = os.path.join(model_dir, 'operative_config-0.gin')
+# Parse gin config
 with gin.unlock_config():
   gin.parse_config_file(gin_file, skip_unknown=True)
-
-# Assumes only one checkpoint in the folder, 'ckpt-[iter]`.
-ckpt_files = [f for f in tf.io.gfile.listdir(model_dir) if 'ckpt' in f]
-ckpt_name = ckpt_files[0].split('.')[0]
-ckpt = os.path.join(model_dir, ckpt_name)
 
 # Ensure dimensions and sampling rates are equal
 time_steps_train = gin.query_parameter('F0LoudnessPreprocessor.time_steps')
@@ -123,6 +110,11 @@ for key in ['f0_hz', 'f0_confidence', 'loudness_db']:
   audio_features[key] = audio_features[key][:time_steps]
 audio_features['audio'] = audio_features['audio'][:, :n_samples]
 
+# Assumes only one checkpoint in the folder, 'ckpt-[iter]`.
+ckpt_files = [f for f in tf.io.gfile.listdir(model_dir) if 'ckpt' in f]
+ckpt_name = ckpt_files[0].split('.')[0]
+ckpt = os.path.join(model_dir, ckpt_name)
+
 # Set up the model just to predict audio given new conditioning
 model = ddsp.training.models.Autoencoder()
 model.restore(ckpt)
@@ -132,13 +124,10 @@ start_time = time.time()
 _ = model(audio_features, training=False)
 print('Restoring model took %.1f seconds' % (time.time() - start_time))
 
-audio_features_mod = None
-af = audio_features if audio_features_mod is None else audio_features_mod
-
 # Run a batch of predictions.
 start_time = time.time()
-outputs = model(af, training=False)
-print("output keys: ", outputs.keys())
+outputs = model(audio_features, training=False)
+print("model output's keys: ", outputs.keys())
 print("harmonic distribution: ", outputs['harmonic_distribution'])
 harmonic_distribution = outputs['harmonic_distribution'].numpy()
 np.save('bass_harmonic_distribution.npy', harmonic_distribution)
