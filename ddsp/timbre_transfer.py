@@ -26,7 +26,7 @@ from scipy.io import wavfile
 import soundfile as sf
 
 # Audio should be monophonic (single instrument / voice)
-filename = 'piano.wav'
+filename = 'test_audio/piano.wav'
 audio, sample_rate = librosa.load(filename)
 print("audio shape: ", audio.shape)
 if len(audio.shape) == 1:
@@ -60,7 +60,7 @@ ax[2].set_ylabel('f0 confidence')
 _ = ax[2].set_xlabel('Time step [frame]')
 plt.savefig('audio_features.png')
 
-model_dir = "bass_model/"
+model_dir = "models/bass/"
 # Load the dataset statistics
 DATASET_STATS = None
 dataset_stats_file = os.path.join(model_dir, 'dataset_statistics.pkl')
@@ -142,6 +142,6 @@ np.save('bass_harmonic_distribution.npy', harmonic_distribution)
 
 audio_gen = model.get_audio_from_outputs(outputs)
 audio_gen = np.transpose(audio_gen.numpy())
-sf.write('bass.wav', audio_gen, sample_rate)
+sf.write('timbre_transfer/bass.wav', audio_gen, sample_rate)
 
 print('Prediction took %.1f seconds' % (time.time() - start_time))
