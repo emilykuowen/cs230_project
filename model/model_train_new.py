@@ -163,11 +163,11 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     
     harmonic_distribution = np.load("../ddsp/bass_harmonic_distribution.npy")
     condition = harmonic_distribution[0]
-    condition = condition.flatten()
-    condition = condition.tolist()
     print("conditionoing input shape: ", condition.shape)
     print("conditioning input: ", condition)
-
+    condition = condition.flatten()
+    condition = condition.tolist()
+    
     nf = stft_params.window_length // 2 + 1
     global model
     model = MaskInference.build(nf, 1, 50, 1, condition, rnn_type='lstm', bidirectional=True, \
