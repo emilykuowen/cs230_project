@@ -161,10 +161,8 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
         fg_path=val_folder, num_mixtures=10, coherent_prob=1.0)
     val_dataloader = torch.utils.data.DataLoader(val_data, num_workers=1, batch_size=batch_size)
     
-    harmonic_distribution = np.load("../ddsp/bass_harmonic_distribution.npy")
-    condition = harmonic_distribution[0]
+    condition = np.load("../ddsp/bass_harmonic_distribution.npy")
     print("conditionoing input shape: ", condition.shape)
-    condition = condition.flatten()
     condition = condition.tolist()
 
     nf = stft_params.window_length // 2 + 1
