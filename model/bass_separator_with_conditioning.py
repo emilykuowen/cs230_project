@@ -185,11 +185,11 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     nussl.ml.train.add_validate_and_checkpoint(output_folder, model, 
         optimizer, train_data, trainer, val_dataloader, validator)
 
-    trainer.run(
-        train_dataloader,
-        max_epochs=max_epochs,
-        epoch_length=epoch_length
-    )
+    # trainer.run(
+    #     train_dataloader,
+    #     max_epochs=max_epochs,
+    #     epoch_length=epoch_length
+    # )
 
 
 def evaluate(separator, output_path):
@@ -281,7 +281,7 @@ if __name__ == "__main__":
     # batch_size = number of training examples in a batch
     # max_epoch = total number of epochs ran in training
     # epoch_length = number of batches in one epoch
-    # train(output_folder, batch_size=10, max_epochs=30, epoch_length=20)
+    train(output_folder, batch_size=10, max_epochs=30, epoch_length=20)
 
     checkpoint_path = output_path + 'checkpoints/best.model.pth'
     separator = nussl.separation.deep.DeepMaskEstimation(
