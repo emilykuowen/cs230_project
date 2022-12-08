@@ -7,8 +7,7 @@ from nussl.datasets import transforms as nussl_tfm
 from common.models import MaskInference
 from common import utils, data
 from pathlib import Path
-# from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
-from nussl_modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding, ConditionedRecurrentStack
+from nussl.ml.networks.modules import AmplitudeToDB, BatchNorm, RecurrentStack, Embedding
 from torch import nn
 import matplotlib.pyplot as plt
 import json
@@ -18,15 +17,15 @@ import numpy as np
 
 class MaskInference(nn.Module):
     def __init__(self, num_features, num_audio_channels, hidden_size,
-                 num_layers, condition, rnn_type='lstm', bidirectional=True, dropout=0.0, num_sources=1, 
-              activation='sigmoid'):
+                 num_layers, bidirectional, dropout, num_sources, 
+                activation='sigmoid'):
         super().__init__()
         
         self.amplitude_to_db = AmplitudeToDB()
         self.input_normalization = BatchNorm(num_features)
-        self.recurrent_stack = ConditionedRecurrentStack(
+        self.recurrent_stack = RecurrentStack(
             num_features * num_audio_channels, hidden_size, 
-            num_layers, condition, bool(bidirectional), dropout, rnn_type=rnn_type
+            num_layers, bool(bidirectional), dropout
         )
         hidden_size = hidden_size * (int(bidirectional) + 1)
         self.embedding = Embedding(num_features, hidden_size, 
@@ -50,9 +49,8 @@ class MaskInference(nn.Module):
     
     # Added function
     @classmethod
-    #build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
     def build(cls, num_features, num_audio_channels, hidden_size, 
-              num_layers, condition, rnn_type='lstm', bidirectional=True, dropout=0.0, num_sources=1, 
+              num_layers, bidirectional, dropout, num_sources, 
               activation='sigmoid'):
         # Step 1. Register our model with nussl
         nussl.ml.register_module(cls)
@@ -69,9 +67,7 @@ class MaskInference(nn.Module):
                     'bidirectional': bidirectional,
                     'dropout': dropout,
                     'num_sources': num_sources,
-                    'activation': activation,
-                    'rnn_type':rnn_type,
-                    'condition': condition
+                    'activation': activation
                 }
             }
         }
@@ -145,9 +141,11 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     tfm = nussl_tfm.Compose([
-        nussl_tfm.SumSources([['bass', 'drums', 'other']]),
+        #nussl_tfm.SumSources([['bass', 'drums', 'other']]),
+        nussl_tfm.SumSources([['drums', 'other', 'vocals']]), 
         nussl_tfm.MagnitudeSpectrumApproximation(),
-        nussl_tfm.IndexSources('source_magnitudes', 1),
+        #nussl_tfm.IndexSources('source_magnitudes', 1),
+        nussl_tfm.IndexSources('source_magnitudes', 0),
         nussl_tfm.ToSeparationModel(),
     ])
 
@@ -161,14 +159,9 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
         fg_path=val_folder, num_mixtures=10, coherent_prob=1.0)
     val_dataloader = torch.utils.data.DataLoader(val_data, num_workers=1, batch_size=batch_size)
     
-    condition = np.load("../ddsp/bass_harmonic_distribution.npy")
-    print("conditionoing input shape: ", condition.shape)
-    condition = condition.tolist()
-
     nf = stft_params.window_length // 2 + 1
     global model
-    model = MaskInference.build(nf, 1, 50, 1, condition, rnn_type='lstm', bidirectional=True, \
-    dropout=0.0, num_sources=1, activation='sigmoid')
+    model = MaskInference.build(nf, 1, 50, 1, True, 0.0, 1, 'sigmoid')
     model = model.to(DEVICE)
     global optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -195,7 +188,8 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
 
 def evaluate(output_folder, separator):
     tfm = nussl_tfm.Compose([
-        nussl_tfm.SumSources([['bass', 'drums', 'other']]),
+        #nussl_tfm.SumSources([['bass', 'drums', 'other']]),
+        nussl_tfm.SumSources([['drums', 'other', 'vocals']]),
     ])
 
     test_dataset = nussl.datasets.MUSDB18(subsets=['test'], transform=tfm)
@@ -207,11 +201,12 @@ def evaluate(output_folder, separator):
         separator.audio_signal = item['mix']
         estimates = separator()
 
-        # source_keys = ['vocals', 'bass+drums+other'] (have the same keys as the estimates dictionary)
         source_keys = list(item['sources'].keys())
         estimates = {
-            'vocals': estimates[0],
-            'bass+drums+other': item['mix'] - estimates[0]
+            'bass': estimates[0],
+            'drums+other+vocals': item['mix'] - estimates[0]
+            #'vocals': estimates[0],
+            #'bass+drums+other': item['mix'] - estimates[0]
         }
 
         sources = [item['sources'][k] for k in source_keys]
@@ -260,7 +255,7 @@ def convert_output_to_wav(separator, song_index):
     estimates.append(item['mix'] - estimates[0])
     stem1 = estimates[0]
     stem2 = estimates[1]
-    stem1.write_audio_to_file('vocal.wav')
+    stem1.write_audio_to_file('bass.wav')
     stem2.write_audio_to_file('accompaniment.wav')
 
 
@@ -279,7 +274,7 @@ if __name__ == "__main__":
     # batch_size = number of training examples in a batch
     # max_epoch = total number of epochs ran in training
     # epoch_length = number of batches in one epoch
-    train(output_folder, batch_size=10, max_epochs=2, epoch_length=20)
+    train(output_folder, batch_size=10, max_epochs=10, epoch_length=20)
 
     separator = nussl.separation.deep.DeepMaskEstimation(
         nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
