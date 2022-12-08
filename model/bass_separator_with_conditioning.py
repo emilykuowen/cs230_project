@@ -192,7 +192,7 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     )
 
 
-def evaluate(output_folder, separator):
+def evaluate(separator, output_folder):
     tfm = nussl_tfm.Compose([
         nussl_tfm.SumSources([['drums', 'other', 'vocals']]),
     ])
@@ -236,7 +236,7 @@ def evaluate(output_folder, separator):
     print(report_card)
     
 
-def plot_validation_loss(filepath):
+def plot_validation_loss(filepath, output_path):
     model_checkpoint = torch.load(filepath, map_location=torch.device('cpu'))
     # print("trainer.state_dict")
     # print(model_checkpoint['metadata']['trainer.state_dict'])
@@ -245,7 +245,7 @@ def plot_validation_loss(filepath):
     plt.xlabel('# of Epochs')
     plt.ylabel('Validation loss')
     plt.title('Validation Loss History of Our Mask Inference Model')
-    plt.savefig('output/validation_loss.png')
+    plt.savefig(output_path + 'validation_loss.png')
 
 
 def convert_output_to_wav(separator, song_index):
@@ -288,6 +288,6 @@ if __name__ == "__main__":
         device=DEVICE,
     )
 
-    plot_validation_loss(checkpoint_path)
-    evaluate(output_folder, separator)
+    plot_validation_loss(checkpoint_path, output_path)
+    evaluate(separator, output_folder)
     # convert_output_to_wav(separator, 0)
