@@ -277,12 +277,12 @@ if __name__ == "__main__":
     # epoch_length = number of batches in one epoch
     # train(output_folder, batch_size=10, max_epochs=1, epoch_length=20)
 
-    model_path = 'output/checkpoints/best.model.pth'
+    checkpoint_path = 'output/checkpoints/best.model.pth'
     separator = nussl.separation.deep.DeepMaskEstimation(
-        nussl.AudioSignal(), model_path=model_path,
+        nussl.AudioSignal(), model_path=checkpoint_path,
         device=DEVICE,
     )
 
-    plot_validation_loss(model_path)
+    plot_validation_loss(checkpoint_path)
     evaluate(output_folder, separator)
     convert_output_to_wav(separator, 0)
