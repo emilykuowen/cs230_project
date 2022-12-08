@@ -220,8 +220,6 @@ def evaluate(output_folder, separator):
             sources, estimates, source_labels=source_keys
         )
         scores = evaluator.evaluate()
-        # TODO: add a subfolder to store the .json files
-        output_folder = Path(output_folder).absolute()
         output_folder.mkdir(exist_ok=True)
         output_file = output_folder / sources[0].file_name.replace('wav', 'json')
         with open(output_file, 'w') as f:
@@ -278,7 +276,7 @@ if __name__ == "__main__":
     # batch_size = number of training examples in a batch
     # max_epoch = total number of epochs ran in training
     # epoch_length = number of batches in one epoch
-    train(output_folder, batch_size=10, max_epochs=2, epoch_length=20)
+    train(output_folder, batch_size=10, max_epochs=1, epoch_length=20)
 
     separator = nussl.separation.deep.DeepMaskEstimation(
         nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
