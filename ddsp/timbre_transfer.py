@@ -39,6 +39,7 @@ ddsp.spectral_ops.reset_crepe()
 # Compute features
 start_time = time.time()
 audio_features = ddsp.training.metrics.compute_audio_features(audio)
+print("Audio features keys: ", audio_features.keys())
 audio_features['loudness_db'] = audio_features['loudness_db'].astype(np.float32)
 audio_features_mod = None
 print('Audio features took %.1f seconds' % (time.time() - start_time))
@@ -127,8 +128,11 @@ print('Restoring model took %.1f seconds' % (time.time() - start_time))
 # Run a batch of predictions.
 start_time = time.time()
 outputs = model(audio_features, training=False)
-print("model output's keys: ", outputs.keys())
-print("harmonic distribution: ", outputs['harmonic_distribution'])
+print("Model output keys: ", outputs.keys())
+for key in outputs.keys():
+    print(key, " shape: ", outputs[key].shape)
+print("Harmonic distribution: ", outputs['harmonic_distribution'])
+
 harmonic_distribution = outputs['harmonic_distribution'].numpy()
 np.save('bass_harmonic_distribution.npy', harmonic_distribution)
 
