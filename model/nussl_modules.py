@@ -172,12 +172,12 @@ class ConditionedRecurrentStack(nn.Module):
         # print()
 
         self.rnn.flatten_parameters()
-        output2 = self.rnn(output1)[0]
+        data = self.rnn(output1)[0]
 
-        shape = output2.shape
-        film_params = self.fc(self.condition, out_planes=2*shape[1], activation=None)
-        gammas, betas = self.film4d(output2, film_params) if len(output2.shape) == 4 else self.film3d(output2, film_params)
-        data = (1 + gammas) * output2 + betas
+        # shape = output2.shape
+        # film_params = self.fc(self.condition, out_planes=2*shape[1], activation=None)
+        # gammas, betas = self.film4d(output2, film_params) if len(output2.shape) == 4 else self.film3d(output2, film_params)
+        # data = (1 + gammas) * output2 + betas
 
         return data
 
