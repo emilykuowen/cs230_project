@@ -155,15 +155,16 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     train_data = data.on_the_fly(stft_params, transform=tfm, 
         fg_path=train_folder, num_mixtures=MAX_MIXTURES, coherent_prob=1.0)
     # TODO: understand what this function does and what would be a suitable batch size to use
-    train_dataloader = torch.utils.data.DataLoader(train_data[:10], num_workers=1, batch_size=batch_size)
+    train_dataloader = torch.utils.data.DataLoader(train_data, num_workers=1, batch_size=batch_size)
 
     val_data = data.on_the_fly(stft_params, transform=tfm, 
         fg_path=val_folder, num_mixtures=10, coherent_prob=1.0)
-    val_dataloader = torch.utils.data.DataLoader(val_data[:10], num_workers=1, batch_size=batch_size)
+    val_dataloader = torch.utils.data.DataLoader(val_data, num_workers=1, batch_size=batch_size)
     
     harmonic_distribution = np.load("../ddsp/bass_harmonic_distribution.npy")
-    condition = harmonic_distribution
-    print("harmonic distribution: ", harmonic_distribution)
+    condition = harmonic_distribution[0]
+    print("conditionoing input shape: ", condition.shape)
+    print("conditioning input: ", condition)
 
     nf = stft_params.window_length // 2 + 1
     global model
