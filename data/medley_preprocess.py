@@ -15,6 +15,8 @@
 
 # imports
 import os
+import os.path
+from os import path
 import yaml
 from pathlib import Path
 import shutil
@@ -65,6 +67,7 @@ for yfilename in os.listdir(ydir):
                 sdict = ydict['stems']
                 # stem = S0# (stem number), slabel = stem key labels (we care about 'instrument')
                 stem_nos = []
+                trackname = ''
                 for stem, slabel in sdict.items():
                     for key in slabel:
                         if slabel[key] == instrument_label:
@@ -76,54 +79,62 @@ for yfilename in os.listdir(ydir):
                             stem_nos.append(stem[-1])
                             # make path in medleydb folder with trackname
                 print(len(stem_nos))
-                # special case, in which multiple stems have same instrument label
-                if (len(stem_nos) > 1): 
-                    print('len > 1')
-                    # initialize list to store the multiple paths that has the instrument stems
-                    instr_paths = []
-                    # iterate through stem_nos
-                    for s in range(len(stem_nos)):
-                        instr_paths.append(os.path.join(dir_in_str, trackname, trackname + '_STEMS', trackname + '_STEM_0' + stem_nos[s] + '.wav'))
-                    #print(len(instr_paths))
-                    #print(instr_paths)
-                    mix_path = os.path.join(dir_in_str, trackname, trackname + '_MIX.wav')
+                # make sure track folder exists in medleydb
+                f = os.path.join(dir_in_str, trackname)
+                if path.exists(f):
+                    #print('track exists for .yaml')
+                    # special case, in which multiple stems have same instrument label
+                    if (len(stem_nos) > 1): 
+                        print('len > 1')
+                        # initialize list to store the multiple paths that has the instrument stems
+                        instr_paths = []
+                        # iterate through stem_nos
+                        for s in range(len(stem_nos)):
+                            instr_paths.append(os.path.join(dir_in_str, trackname, trackname + '_STEMS', trackname + '_STEM_0' + stem_nos[s] + '.wav'))
+                        #print(len(instr_paths))
+                        #print(instr_paths)
+                        mix_path = os.path.join(dir_in_str, trackname, trackname + '_MIX.wav')
       
-                    fs2, data2 = wavfile.read(mix_path)
-                    # get individual stem .wav files and store in data1 list 
-                    data1 = []
-                    for ss in instr_paths:
-                        samplerate, data = wavfile.read(ss)
-                        data1.append(data)
-                    # add all stem .wavs corresponding to instrument together
-                    sum_istr_stems = [sum(x) for x in zip(*data1)]
-                    # write summed 'instrument' .wav in new dir
-                    wv.write(os.path.join(new_instr_path, trackname + '.wav'), sum_istr_stems, fs2)
+                        fs2, data2 = wavfile.read(mix_path)
+                        # get individual stem .wav files and store in data1 list 
+                        data1 = []
+                        for ss in instr_paths:
+                            samplerate, data = wavfile.read(ss)
+                            data1.append(data)
+                        # add all stem .wavs corresponding to instrument together
+                        sum_istr_stems = [sum(x) for x in zip(*data1)]
+                        # write summed 'instrument' .wav in new dir
+                        wv.write(os.path.join(new_instr_path, trackname + '.wav'), sum_istr_stems, fs2)
                     
-                    #assert fs1 == fs2
-                    assert len(sum_istr_stems) == len(data2)
-                    # calculate 'other' .wav file
-                    data3 = data2-sum_istr_stems
-                    # write 'other' .wav file into new dir
-                    wv.write(os.path.join(new_other_path, trackname + '.wav'), data3, fs2)
-                    # move and rename MIX .wav file into new dir
-                    shutil.move(mix_path, os.path.join(new_mix_path, trackname + '.wav'))
-                # usual case where we only have one stem file corresponding to instrument
-                elif (len(stem_nos) == 1):
-                    print('len == 1')
-                    instr_path = os.path.join(dir_in_str, trackname, trackname + '_STEMS', trackname + '_STEM_0' + stem_nos[0] + '.wav')
-                    mix_path = os.path.join(dir_in_str, trackname, trackname + '_MIX.wav')
+                        #assert fs1 == fs2
+                        assert len(sum_istr_stems) == len(data2)
+                        # calculate 'other' .wav file
+                        data3 = data2-sum_istr_stems
+                        # write 'other' .wav file into new dir
+                        wv.write(os.path.join(new_other_path, trackname + '.wav'), data3, fs2)
+                        # write 'mix' .wav file into new dir 
+                        wv.write(os.path.join(new_mix_path, trackname+ '.wav'), data2, fs2)
+                        # move and rename MIX .wav file into new dir
+                        # shutil.move(mix_path, os.path.join(new_mix_path, trackname + '.wav'))
+                    # usual case where we only have one stem file corresponding to instrument
+                    elif (len(stem_nos) == 1):
+                        print('len == 1')
+                        instr_path = os.path.join(dir_in_str, trackname, trackname + '_STEMS', trackname + '_STEM_0' + stem_nos[0] + '.wav')
+                        mix_path = os.path.join(dir_in_str, trackname, trackname + '_MIX.wav')
                     
-                    # get inside track's folder to stems
-                    fs1, data1 = wavfile.read(instr_path)
-                    fs2, data2 = wavfile.read(mix_path)
-                    assert fs1 == fs2
-                    assert len(data1) == len(data2)
-                    # calculate 'other' .wav file
-                    data3 = data2-data1
-                    # write 'other' .wav file into new dir
-                    wv.write(os.path.join(new_other_path, trackname + '.wav'), data3, fs2)
-                                    
-                    # move and rename instrument.wav file into new dir
-                    shutil.move(instr_path, os.path.join(new_instr_path, trackname + '.wav'))
-                    # move and rename MIX .wav file into new dir
-                    shutil.move(mix_path, os.path.join(new_mix_path, trackname + '.wav'))
+                        # get inside track's folder to stems
+                        fs1, data1 = wavfile.read(instr_path)
+                        fs2, data2 = wavfile.read(mix_path)
+                        assert fs1 == fs2
+                        assert len(data1) == len(data2)
+                        # calculate 'other' .wav file
+                        data3 = data2-data1
+                        # write 'other' .wav file into new dir
+                        wv.write(os.path.join(new_other_path, trackname + '.wav'), data3, fs2)
+                    
+                        # write 'instr' .wav file into new dir 
+                        wv.write(os.path.join(new_instr_path, trackname+ '.wav'), data1, fs1)
+                        # shutil.move(instr_path, os.path.join(new_instr_path, trackname + '.wav'))
+                        # write 'mix' .wav file into new dir 
+                        wv.write(os.path.join(new_mix_path, trackname+ '.wav'), data2, fs2)
+                        # shutil.move(mix_path, os.path.join(new_mix_path, trackname + '.wav'))
