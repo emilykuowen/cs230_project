@@ -5,9 +5,10 @@ import tensorboard as tb
 
 # os.system("pip install -qU ddsp[data_preparation]==1.6.3")
 
+instrument = 'bass'
 # Make directories to save model and data
-DRIVE_DIR = '../data/train/bass'
-AUDIO_DIR = '../data/tf_audio/bass'
+DRIVE_DIR = '../data/musdb18/train/' + instrument
+AUDIO_DIR = '../data/musdb18/tf_audio/' + instrument
 AUDIO_FILEPATTERN = AUDIO_DIR + '/*'
 os.system("mkdir -p " + AUDIO_DIR)
 SAVE_DIR = os.path.join(DRIVE_DIR, 'ddsp-solo-instrument')
@@ -24,7 +25,7 @@ for fname in audio_files:
   os.system(cp_command)
 
 # Preprocess raw audio into TFRecord dataset
-TRAIN_TFRECORD = 'data/train.tfrecord'
+TRAIN_TFRECORD = 'data/' + instrument + '/train.tfrecord'
 TRAIN_TFRECORD_FILEPATTERN = TRAIN_TFRECORD + '*'
 
 # Copy dataset from drive if dataset has already been created.
@@ -32,7 +33,7 @@ drive_data_dir = os.path.join(DRIVE_DIR, 'data')
 drive_dataset_files = glob.glob(drive_data_dir + '/*')
 
 if DRIVE_DIR and len(drive_dataset_files) > 0:
-    os.system("cp " + drive_data_dir + "/* data/")
+    os.system("cp " + drive_data_dir + "/* data/" + instrument)
 else:
     # Make a new dataset.
     if not glob.glob(AUDIO_FILEPATTERN):

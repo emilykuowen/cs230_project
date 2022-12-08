@@ -241,22 +241,6 @@ def plot_validation_loss(filepath, output_path):
     plt.savefig(output_path + 'validation_loss.png')
 
 
-def convert_output_to_wav(separator, song_index, output_path):
-    test_folder = "~/.nussl/tutorial/test/"
-    # TODO: check if there's a way to add a random seed to generate the same mix every time
-    test_data = data.mixer(stft_params, transform=None, fg_path=test_folder, num_mixtures=MAX_MIXTURES, coherent_prob=1.0)
-    item = test_data[song_index]
-
-    separator.audio_signal = item['mix']
-    estimates = separator()
-    # Since our model only returns one source, let's tack on the residual (which should be accompaniment)
-    estimates.append(item['mix'] - estimates[0])
-    stem1 = estimates[0]
-    stem2 = estimates[1]
-    stem1.write_audio_to_file(output_path + 'bass.wav')
-    stem2.write_audio_to_file(output_path + 'accompaniment.wav')
-
-
 if __name__ == "__main__":
     utils.logger()
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -283,4 +267,3 @@ if __name__ == "__main__":
 
     plot_validation_loss(checkpoint_path, output_path)
     evaluate(separator, output_path)
-    # convert_output_to_wav(separator, 0)
