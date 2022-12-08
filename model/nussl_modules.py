@@ -148,15 +148,15 @@ class ConditionedRecurrentStack(nn.Module):
             (num_batch, sequence_length, hidden_size or hidden_size*2 if 
             bidirectional=True)
         """
-        # # FiLM parameters needed for each channel in the feature map
-        # # hence, feature_size defined to be same as no. of channels
+        # FiLM parameters needed for each channel in the feature map
+        # hence, feature_size defined to be same as number of channels
         shape = data.shape
         data = data.reshape(shape[0], shape[1], -1)
 
         print("Data shape", data.shape)
         print()
 
-        # # linear transformation of context to FiLM parameters
+        # linear transformation of context to FiLM parameters
         film_params = self.fc(self.condition, out_planes=2 * shape[1], activation=None)
 
         print("Film shape", film_params.shape)

@@ -34,6 +34,8 @@ class MaskInference(nn.Module):
                                    num_audio_channels)
         
     def forward(self, data):
+        print("new forward pass")
+        print()
         mix_magnitude = data # save for masking
         
         data = self.amplitude_to_db(mix_magnitude)
