@@ -225,8 +225,7 @@ def evaluate(output_folder, separator):
         with open(output_file, 'w') as f:
             json.dump(scores, f, indent=4)
     
-    # TODO: check if the path here needs to be changed to aggregate the .json files
-    json_files = glob.glob(f"*.json")
+    json_files = glob.glob(output_folder.getPath() + "*.json")
     df = nussl.evaluation.aggregate_score_files(json_files, aggregator=np.nanmedian)
     nussl.evaluation.associate_metrics(separator.model, df, test_dataset)
     report_card = nussl.evaluation.report_card(df, report_each_source=True)
@@ -276,7 +275,7 @@ if __name__ == "__main__":
     # batch_size = number of training examples in a batch
     # max_epoch = total number of epochs ran in training
     # epoch_length = number of batches in one epoch
-    train(output_folder, batch_size=10, max_epochs=1, epoch_length=20)
+    # train(output_folder, batch_size=10, max_epochs=1, epoch_length=20)
 
     model_path = 'output/checkpoints/best.model.pth'
     separator = nussl.separation.deep.DeepMaskEstimation(
