@@ -41,7 +41,6 @@ start_time = time.time()
 audio_features = ddsp.training.metrics.compute_audio_features(audio)
 print("Audio features keys: ", audio_features.keys())
 audio_features['loudness_db'] = audio_features['loudness_db'].astype(np.float32)
-audio_features_mod = None
 print('Audio features took %.1f seconds' % (time.time() - start_time))
 
 TRIM = -15
@@ -129,11 +128,12 @@ print('Restoring model took %.1f seconds' % (time.time() - start_time))
 start_time = time.time()
 outputs = model(audio_features, training=False)
 print("Model output keys: ", outputs.keys())
-for key in outputs.keys():
-    print(key, ": ", outputs[key])
-    print("")
+# for key in outputs.keys():
+#     print(key, ": ", outputs[key])
+#     print("")
 
-harmonic_distribution = outputs['harmonic_distribution'].numpy()
+harmonic_distribution = outputs['harmonic_distribution'].numpy()[:,:,0]
+print("Harmonic distribution: ", harmonic_distribution)
 np.save('bass_harmonic_distribution.npy', harmonic_distribution)
 
 audio_gen = model.get_audio_from_outputs(outputs)
