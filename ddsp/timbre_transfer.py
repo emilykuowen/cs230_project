@@ -130,8 +130,8 @@ start_time = time.time()
 outputs = model(audio_features, training=False)
 print("Model output keys: ", outputs.keys())
 for key in outputs.keys():
-    print(key, " shape: ", outputs[key])
-print("Harmonic distribution: ", outputs['harmonic_distribution'])
+    print(key, ": ", outputs[key])
+    print("")
 
 harmonic_distribution = outputs['harmonic_distribution'].numpy()
 np.save('bass_harmonic_distribution.npy', harmonic_distribution)
