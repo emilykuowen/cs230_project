@@ -153,24 +153,23 @@ class ConditionedRecurrentStack(nn.Module):
         shape = data.shape
         data = data.reshape(shape[0], shape[1], -1)
 
-        print("Data shape", data.shape)
-        print()
+        print("Data shape: ", data.shape)
 
         # linear transformation of context to FiLM parameters
-        film_params = self.fc(self.condition, out_planes=2 * shape[1], activation=None)
+        print("Condition shape: ", self.condition.shape)
+        print("Out plane length: ", 2*shape[1])
+        film_params = self.fc(self.condition, out_planes=2*shape[1], activation=None)
 
         print("Film shape", film_params.shape)
-        print()
 
         gammas, betas = self.film4d(data, film_params) if len(data.shape) == 4 else self.film3d(data, film_params)
         print("Gamma shape: ", gammas.shape)
         print("Beta shape: ", betas.shape)
-        print()
 
         # modulate the feature map with FiLM parameters
         output = (1 + gammas) * data + betas
 
-        print("Output shape", output.shape)
+        print("Output shape: ", output.shape)
         print()
 
         self.rnn.flatten_parameters()
