@@ -34,8 +34,6 @@ class MaskInference(nn.Module):
                                    num_audio_channels)
         
     def forward(self, data):
-        print("new forward pass")
-        print()
         mix_magnitude = data # save for masking
         
         data = self.amplitude_to_db(mix_magnitude)
@@ -206,6 +204,7 @@ def evaluate(output_folder, separator):
     # for i in range(len(test_dataset)):
     for i in range(5):
         item = test_dataset[i]
+        print(item.keys())
         separator.audio_signal = item['mix']
         estimates = separator()
 
@@ -215,6 +214,7 @@ def evaluate(output_folder, separator):
             'drums+other+vocals': item['mix'] - estimates[0]
         }
 
+        # write audio output to wav
         estimates['bass'].write_audio_to_file('output/bass.wav')
         estimates['drums+other+vocals'].write_audio_to_file('output/other.wav')
 
