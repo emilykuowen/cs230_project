@@ -221,8 +221,7 @@ def evaluate(separator, output_path):
         with open(output_file, 'w') as f:
             json.dump(scores, f, indent=4)
     
-    # TODO: check if the path here needs to be changed to aggregate the .json files
-    json_files = glob.glob(f"*.json")
+    json_files = glob.glob(str(output_folder) + "/*.json")
     df = nussl.evaluation.aggregate_score_files(json_files, aggregator=np.nanmedian)
     nussl.evaluation.associate_metrics(separator.model, df, test_dataset)
     report_card = nussl.evaluation.report_card(df, report_each_source=True)
