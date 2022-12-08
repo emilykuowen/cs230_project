@@ -215,6 +215,9 @@ def evaluate(output_folder, separator):
             'drums+other+vocals': item['mix'] - estimates[0]
         }
 
+        estimates['bass'].write_audio_to_file('output/bass.wav')
+        estimates['drums+other+vocals'].write_audio_to_file('output/other.wav')
+
         sources = [item['sources'][k] for k in source_keys]
         estimates = [estimates[k] for k in source_keys]
 
@@ -287,4 +290,4 @@ if __name__ == "__main__":
 
     plot_validation_loss(checkpoint_path)
     evaluate(output_folder, separator)
-    convert_output_to_wav(separator, 0)
+    # convert_output_to_wav(separator, 0)
