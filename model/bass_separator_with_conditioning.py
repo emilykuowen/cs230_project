@@ -233,7 +233,7 @@ def evaluate(output_folder, separator):
     print(report_card)
     
 
-def plot_validation_loss(filepath='checkpoints/best.model.pth'):
+def plot_validation_loss(filepath):
     model_checkpoint = torch.load(filepath, map_location=torch.device('cpu'))
     # print("trainer.state_dict")
     # print(model_checkpoint['metadata']['trainer.state_dict'])
@@ -242,7 +242,7 @@ def plot_validation_loss(filepath='checkpoints/best.model.pth'):
     plt.xlabel('# of Epochs')
     plt.ylabel('Validation loss')
     plt.title('Validation Loss History of Our Mask Inference Model')
-    plt.show()
+    plt.savefig('output/validation_loss.png')
 
 
 def convert_output_to_wav(separator, song_index):
@@ -278,11 +278,12 @@ if __name__ == "__main__":
     # epoch_length = number of batches in one epoch
     train(output_folder, batch_size=10, max_epochs=1, epoch_length=20)
 
+    model_path = 'output/checkpoints/best.model.pth'
     separator = nussl.separation.deep.DeepMaskEstimation(
-        nussl.AudioSignal(), model_path='checkpoints/best.model.pth',
+        nussl.AudioSignal(), model_path=model_path,
         device=DEVICE,
     )
 
-    plot_validation_loss()
+    plot_validation_loss(model_path)
     evaluate(output_folder, separator)
     convert_output_to_wav(separator, 0)
