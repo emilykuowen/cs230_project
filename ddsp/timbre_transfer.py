@@ -132,9 +132,12 @@ print("Model output keys: ", outputs.keys())
 #     print(key, ": ", outputs[key])
 #     print("")
 
-harmonic_distribution = outputs['harmonic_distribution'][:,:,0].numpy().flatten()
+harmonic_distribution = outputs['harmonic_distribution']
 print("Harmonic distribution: ", harmonic_distribution)
 print("Harmonic distribution shape: ", harmonic_distribution.shape)
+harmonic_distribution = harmonic_distribution[:,:,0].numpy().flatten()
+print("Trimmed harmonic distribution: ", harmonic_distribution)
+print("Trimmed harmonic distribution shape: ", harmonic_distribution.shape)
 np.save('bass_harmonic_distribution.npy', harmonic_distribution)
 
 audio_gen = model.get_audio_from_outputs(outputs)
