@@ -163,7 +163,8 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     
     harmonic_distribution = np.load("../ddsp/bass_harmonic_distribution.npy")
     condition = harmonic_distribution[0]
-    condition = np.ravel(condition.flatten())
+    condition = condition.flatten()
+    condition = condition.tolist()
     print("conditionoing input shape: ", condition.shape)
     print("conditioning input: ", condition)
 
