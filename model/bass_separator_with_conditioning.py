@@ -204,8 +204,9 @@ def evaluate(output_folder, separator):
     # for i in range(len(test_dataset)):
     for i in range(5):
         item = test_dataset[i]
-        print(item.keys())
+        print(item['metadata'].keys())
         separator.audio_signal = item['mix']
+        filename = item['mix'].file_name
         estimates = separator()
 
         source_keys = list(item['sources'].keys())
@@ -215,8 +216,8 @@ def evaluate(output_folder, separator):
         }
 
         # write audio output to wav
-        estimates['bass'].write_audio_to_file('output/bass.wav')
-        estimates['drums+other+vocals'].write_audio_to_file('output/other.wav')
+        estimates['bass'].write_audio_to_file('output/' + filename + '_bass.wav')
+        estimates['drums+other+vocals'].write_audio_to_file('output/' + filename + '_other.wav')
 
         sources = [item['sources'][k] for k in source_keys]
         estimates = [estimates[k] for k in source_keys]
