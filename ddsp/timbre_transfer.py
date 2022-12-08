@@ -70,7 +70,7 @@ try:
   if tf.io.gfile.exists(dataset_stats_file):
     with tf.io.gfile.GFile(dataset_stats_file, 'rb') as f:
       DATASET_STATS = pickle.load(f)
-      print("Dataset statistics: ", DATASET_STATS)
+    #   print("Dataset statistics: ", DATASET_STATS)
 except Exception as err:
   print('Loading dataset statistics from pickle failed: {}.'.format(err))
 
@@ -130,7 +130,7 @@ start_time = time.time()
 outputs = model(audio_features, training=False)
 print("Model output keys: ", outputs.keys())
 for key in outputs.keys():
-    print(key, " shape: ", outputs[key].shape)
+    print(key, " shape: ", outputs[key])
 print("Harmonic distribution: ", outputs['harmonic_distribution'])
 
 harmonic_distribution = outputs['harmonic_distribution'].numpy()
