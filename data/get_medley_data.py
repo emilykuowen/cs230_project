@@ -285,7 +285,7 @@ if __name__ == "__main__":
 
     fg_folder = '../../data/medleydb_' + 'acoustic_guitar'
     bg_folder = '../../data' + '/bg'
-    if not os.oath.exists(bg_folder):
+    if not os.path.exists(bg_folder):
         bg_folder.mkdir(parents=True, exist_ok=True)
     
 
