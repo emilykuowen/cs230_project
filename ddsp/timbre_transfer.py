@@ -27,7 +27,7 @@ import soundfile as sf
 
 instrument = 'vocals'
 # Audio should be monophonic (single instrument / voice)
-filename = 'timbre_reference/bass.wav'
+filename = 'test_audio/piano.wav'
 audio, sample_rate = librosa.load(filename)
 print("audio shape: ", audio.shape)
 if len(audio.shape) == 1:
@@ -59,7 +59,7 @@ ax[1].set_ylabel('f0 [midi]')
 ax[2].plot(audio_features['f0_confidence'][:TRIM])
 ax[2].set_ylabel('f0 confidence')
 _ = ax[2].set_xlabel('Time step [frame]')
-plt.savefig(instrument + '_audio_features.png')
+plt.savefig('input_audio_features.png')
 
 model_dir = "models/" + instrument
 # Load the dataset statistics
