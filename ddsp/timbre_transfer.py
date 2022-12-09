@@ -27,7 +27,7 @@ import soundfile as sf
 
 instrument = 'bass'
 # Audio should be monophonic (single instrument / voice)
-filename = 'test_audio/piano.wav'
+filename = 'test_audio/piano2.wav'
 audio, sample_rate = librosa.load(filename)
 print("audio shape: ", audio.shape)
 if len(audio.shape) == 1:
