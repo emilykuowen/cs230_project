@@ -25,6 +25,7 @@ import tensorflow_datasets as tfds
 from scipy.io import wavfile
 import soundfile as sf
 
+instrument = 'vocals'
 # Audio should be monophonic (single instrument / voice)
 filename = 'timbre_reference/bass.wav'
 audio, sample_rate = librosa.load(filename)
@@ -58,20 +59,20 @@ ax[1].set_ylabel('f0 [midi]')
 ax[2].plot(audio_features['f0_confidence'][:TRIM])
 ax[2].set_ylabel('f0 confidence')
 _ = ax[2].set_xlabel('Time step [frame]')
-plt.savefig('audio_features.png')
+plt.savefig(instrument + '_audio_features.png')
 
-model_dir = "models/bass/"
+model_dir = "models/" + instrument
 # Load the dataset statistics
-DATASET_STATS = None
-dataset_stats_file = os.path.join(model_dir, 'dataset_statistics.pkl')
-print(f'Loading dataset statistics from {dataset_stats_file}')
-try:
-  if tf.io.gfile.exists(dataset_stats_file):
-    with tf.io.gfile.GFile(dataset_stats_file, 'rb') as f:
-      DATASET_STATS = pickle.load(f)
-    #   print("Dataset statistics: ", DATASET_STATS)
-except Exception as err:
-  print('Loading dataset statistics from pickle failed: {}.'.format(err))
+# DATASET_STATS = None
+# dataset_stats_file = os.path.join(model_dir, 'dataset_statistics.pkl')
+# print(f'Loading dataset statistics from {dataset_stats_file}')
+# try:
+#   if tf.io.gfile.exists(dataset_stats_file):
+#     with tf.io.gfile.GFile(dataset_stats_file, 'rb') as f:
+#       DATASET_STATS = pickle.load(f)
+#     #   print("Dataset statistics: ", DATASET_STATS)
+# except Exception as err:
+#   print('Loading dataset statistics from pickle failed: {}.'.format(err))
 
 gin_file = os.path.join(model_dir, 'operative_config-0.gin')
 # Parse gin config
@@ -138,10 +139,10 @@ print("Harmonic distribution shape: ", harmonic_distribution.shape)
 harmonic_distribution = harmonic_distribution[:,:,0].numpy().flatten()
 print("Trimmed harmonic distribution: ", harmonic_distribution)
 print("Trimmed harmonic distribution shape: ", harmonic_distribution.shape)
-np.save('bass_harmonic_distribution.npy', harmonic_distribution)
+np.save(instrument + '_harmonic_distribution.npy', harmonic_distribution)
 
 audio_gen = model.get_audio_from_outputs(outputs)
 audio_gen = np.transpose(audio_gen.numpy())
-sf.write('timbre_transfer_output/bass.wav', audio_gen, sample_rate)
+sf.write('timbre_transfer_output/' + instrument + '.wav', audio_gen, sample_rate)
 
 print('Prediction took %.1f seconds' % (time.time() - start_time))
