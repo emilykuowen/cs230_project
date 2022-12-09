@@ -286,7 +286,9 @@ if __name__ == "__main__":
     fg_folder = '../../data/medleydb_' + 'acoustic_guitar'
     bg_folder = '../../data' + '/bg'
     if not os.path.exists(bg_folder):
+        bg_folder = Path(bg_folder).expanduser()
         bg_folder.mkdir(parents=True, exist_ok=True)
+        bg_folder = str(bg_folder)
     
 
     # musdb = download_musdb18(fg_folder, bg_folder)
