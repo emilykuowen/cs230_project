@@ -326,7 +326,6 @@ if __name__ == "__main__":
     on_the_fly = nussl.datasets.OnTheFly(
         num_mixtures=1000,
         mix_closure=mix_func
-        print('on_the_fly after mix_closure called')
     )
 
     for i in range(3):
