@@ -94,7 +94,6 @@ class ConditionedRecurrentStack(nn.Module):
         else:
             self.condition = torch.FloatTensor(condition)
         self.fc = DynamicFC()
-        self.fc2 = DynamicFC()
 
         if init_forget:
             for name, param in self.rnn.named_parameters():
@@ -150,7 +149,7 @@ class ConditionedRecurrentStack(nn.Module):
         """
         # FiLM parameters needed for each channel in the feature map
         # hence, feature_size defined to be same as number of channels
-            
+        shape = data.shape    
         data = data.reshape(shape[0], shape[1], -1)
         # print("Data shape: ", data.shape)
 
@@ -166,17 +165,12 @@ class ConditionedRecurrentStack(nn.Module):
         # print("Beta shape: ", betas.shape)
 
         # modulate the feature map with FiLM parameters
-        output1 = (1 + gammas) * data + betas
-        # print("Output1 shape: ", output1.shape)
+        output = (1 + gammas) * data + betas
+        # print("Output shape: ", output.shape)
         # print()
 
         self.rnn.flatten_parameters()
-        data = self.rnn(output1)[0]
-
-        # shape = output2.shape
-        # film_params = self.fc(self.condition, out_planes=2*shape[1], activation=None)
-        # gammas, betas = self.film4d(output2, film_params) if len(output2.shape) == 4 else self.film3d(output2, film_params)
-        # data = (1 + gammas) * output2 + betas
+        data = self.rnn(output)[0]
 
         return data
 
