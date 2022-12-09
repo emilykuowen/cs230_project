@@ -164,6 +164,9 @@ def coherent(fg_folder, bg_folder, event_template, seed):
         List containing the audio signals of the stems that comprise the mixture
     """
     print('coherent before scraper')
+    temp_folder = '../../data' + '/temp/mix'
+    mix_folder = '../../data/medleydb_', 'acoustic_guitar' + '/mix'
+    shutil.move(mix_folder, temp_folder)
     # Create scaper object and seed random state
     sc = scaper.Scaper(
         duration=5.0,
@@ -290,6 +293,12 @@ if __name__ == "__main__":
         bg_folder.mkdir(parents=True, exist_ok=True)
         bg_folder = str(bg_folder)
     
+    temp_folder = '../../data' + '/temp'
+    if not os.path.exists(temp_folder):
+        temp_folder = Path(temp_folder).expanduser()
+        temp_folder.mkdir(parents=True, exist_ok=True)
+        temp_folder = str(temp_folder)
+    
 
     # musdb = download_musdb18(fg_folder, bg_folder)
     # medley = get_medley(fg_folder, bg_folder)
@@ -330,7 +339,7 @@ if __name__ == "__main__":
         mix_closure=mix_func
     )
 
-    for i in range(3):
+    for i in range(1): # ' acoustic guitar' abd 'other'
         item = on_the_fly[i]
         mix = item['mix']
         print(mix)
