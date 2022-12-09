@@ -19,26 +19,27 @@ import os.path
 from os import path
 import yaml
 from pathlib import Path
-#import shutil
+import shutil
 import numpy as np
-#import wavio as wv
-import nussl
+import wavio as wv
 #import soundfile
 #import wave
-#from scipy.io import wavfile
-#from scipy.io.wavfile import write
-#from pydub import AudioSegment, effects
+from scipy.io import wavfile
+from scipy.io.wavfile import write
 
+
+# directory that MedleyDB dataset is downloaded to
+# dir_in_str = './MedleyDB_sample/Audio/'
 # track directory
 dir_in_str = 'medleydb/tracks/'
 # .yaml directory
 ydir = 'medleydb/metadata/'
 
 # change label depending on which instrument we want to separate
-instrument_label = 'acoustic guitar' 
+instrument_label = 'piano' 
 
 # prepare new directory structure
-new_dir = './mix_source_folder' + '_' + instrument_label
+new_dir = './mix_source_folder'
 new_mix_path = os.path.join(new_dir, 'mix')
 new_instr_path = os.path.join(new_dir, instrument_label)
 new_other_path = os.path.join(new_dir, 'other')
@@ -72,8 +73,10 @@ for yfilename in os.listdir(ydir):
                         if slabel[key] == instrument_label:
                             # trackname given by yaml file name
                             trackname = yfilename.partition('_METADATA.')[0]
+                            #print(trackname)
+                            #print(type(trackname))
                             # also need stem number in yaml
-                            stem_nos.append(stem[-1])
+                            stem_nos.append(stem[-2:])
                             # make path in medleydb folder with trackname
                 print(len(stem_nos))
                 # make sure track folder exists in medleydb
@@ -87,56 +90,55 @@ for yfilename in os.listdir(ydir):
                         instr_paths = []
                         # iterate through stem_nos
                         for s in range(len(stem_nos)):
-                            instr_paths.append(os.path.join(dir_in_str, trackname, trackname + '_STEMS', trackname + '_STEM_0' + stem_nos[s] + '.wav'))
-
+                            #stem_num = int(stem_nos[s])
+                            instr_paths.append(os.path.join(dir_in_str, trackname, trackname + '_STEMS', trackname + '_STEM_' + stem_nos[s] + '.wav'))
+                        #print(len(instr_paths))
+                        #print(instr_paths)
                         mix_path = os.path.join(dir_in_str, trackname, trackname + '_MIX.wav')
       
-                        #fs2, data2 = wavfile.read(mix_path)
-                        mix_data = nussl.AudioSignal(mix_path)
-
+                        fs2, data2 = wavfile.read(mix_path)
                         # get individual stem .wav files and store in data1 list 
-                        sdata = []
+                        data1 = []
                         for ss in instr_paths:
-                            data = nussl.AudioSignal(ss).audio_data
-                            sdata.append(data)
-                        # add all stems audio arrays corresponding to instrument together
-                        stems_data = [sum(x) for x in zip(*sdata)] # numpy array
-                        # convert to audio signal object
-                        sums_stems_data = nussl.AudioSignal(audio_data_array=np.array(stems_data), sample_rate=44100) 
-                        # normalize to avoid clipping
-                        sums_stems_data = sums_stems_data.peak_normalize() 
-                        # write to new instr dir
-                        sums_stems_data.write_audio_to_file(os.path.join(new_instr_path, trackname + '.wav')) 
-
+                            samplerate, data = wavfile.read(ss)
+                            data1.append(data)
+                        # add all stem .wavs corresponding to instrument together
+                        sum_istr_stems = [sum(x) for x in zip(*data1)]
+                        # write summed 'instrument' .wav in new dir
+                        wv.write(os.path.join(new_instr_path, trackname + '.wav'), sum_istr_stems, fs2)
+                    
+                        #assert fs1 == fs2
+                        assert len(sum_istr_stems) == len(data2)
                         # calculate 'other' .wav file
-                        other_data = mix_data - sums_stems_data
-                        # normalize to avoid clipping
-                        other_data = other_data.peak_normalize() 
-                        # write to new other dir
-                        other_data.write_audio_to_file(os.path.join(new_other_path, trackname + '.wav')) 
-                        
+                        data3 = data2-sum_istr_stems
+                        # write 'other' .wav file into new dir
+                        wv.write(os.path.join(new_other_path, trackname + '.wav'), data3, fs2)
                         # write 'mix' .wav file into new dir 
-                        mix_data.write_audio_to_file(os.path.join(new_mix_path, trackname+ '.wav'))
-
+                        wv.write(os.path.join(new_mix_path, trackname+ '.wav'), data2, fs2)
+                        # move and rename MIX .wav file into new dir
+                        # shutil.move(mix_path, os.path.join(new_mix_path, trackname + '.wav'))
                     # usual case where we only have one stem file corresponding to instrument
                     elif (len(stem_nos) == 1):
                         print('len == 1')
-                        instr_path = os.path.join(dir_in_str, trackname, trackname + '_STEMS', trackname + '_STEM_0' + stem_nos[0] + '.wav')
+                        #stem_num = int(stem_nos[0])
+                        #print(stem_num)
+                        instr_path = os.path.join(dir_in_str, trackname, trackname + '_STEMS', trackname + '_STEM_' + stem_nos[0] + '.wav')
                         mix_path = os.path.join(dir_in_str, trackname, trackname + '_MIX.wav')
-
-                        # get audio data for instr
-                        stem_data = nussl.AudioSignal(instr_path)
-                        # get audio data for mix
-                        mix_data = nussl.AudioSignal(mix_path)
-
+                    
+                        # get inside track's folder to stems
+                        fs1, data1 = wavfile.read(instr_path)
+                        fs2, data2 = wavfile.read(mix_path)
+                        assert fs1 == fs2
+                        assert len(data1) == len(data2)
                         # calculate 'other' .wav file
-                        other_data = mix_data-stem_data
-                        # normalize to avoid clipping
-                        other_data = other_data.peak_normalize()
-                        # write to new other dir
-                        other_data.write_audio_to_file(os.path.join(new_other_path, trackname + '.wav'))
+                        data3 = data2-data1
+                        # write 'other' .wav file into new dir
+                        wv.write(os.path.join(new_other_path, trackname + '.wav'), data3, fs2)
+                    
+                        # write 'instr' .wav file into new dir 
+                        wv.write(os.path.join(new_instr_path, trackname+ '.wav'), data1, fs1)
+                        # shutil.move(instr_path, os.path.join(new_instr_path, trackname + '.wav'))
+                        # write 'mix' .wav file into new dir 
+                        wv.write(os.path.join(new_mix_path, trackname+ '.wav'), data2, fs2)
+                        # shutil.move(mix_path, os.path.join(new_mix_path, trackname + '.wav'))
 
-                        # write to new instr dir
-                        stem_data.write_audio_to_file(os.path.join(new_instr_path, trackname + '.wav'))
-                        # write to new mix dir
-                        mix_data.write_audio_to_file(os.path.join(new_mix_path, trackname + '.wav'))
