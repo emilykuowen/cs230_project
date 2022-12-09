@@ -17,7 +17,7 @@ AUDIO_DIR = '../data/musdb18/tf_audio/' + instrument
 AUDIO_FILEPATTERN = AUDIO_DIR + '/*'
 os.system("mkdir -p " + AUDIO_DIR)
 # SAVE_DIR = os.path.join(DRIVE_DIR, 'ddsp')
-SAVE_DIR = os.path.join('models/bass_new/')
+SAVE_DIR = os.path.join('models/bass_new')
 os.system("mkdir -p " + SAVE_DIR)
 
 mp3_files = glob.glob(os.path.join(DRIVE_DIR, '*.mp3'))
@@ -30,12 +30,13 @@ for fname in audio_files:
   cp_command = "cp \"" + fname + "\" " + target_name
   os.system(cp_command)
 
+
 # Preprocess raw audio into TFRecord dataset
 # TRAIN_TFRECORD = 'data/train.tfrecord'
-TRAIN_TFRECORD_DIR = 'data/' + instrument
-os.system("mkdir -p " + TRAIN_TFRECORD_DIR)
+TRAIN_TFRECORD = 'data/' + instrument + '/train.tfrecord'
+os.system("mkdir -p data/" + instrument)
 # TRAIN_TFRECORD = '../../data/' + 'medleydb_' + instrument + '/tfrecord/train.tfrecord'
-TRAIN_TFRECORD_FILEPATTERN = TRAIN_TFRECORD_DIR + '/train.tfrecord*'
+TRAIN_TFRECORD_FILEPATTERN = TRAIN_TFRECORD + '*'
 
 # # Copy dataset from drive if dataset has already been created.
 # drive_data_dir = os.path.join(DRIVE_DIR, 'data')
@@ -61,6 +62,7 @@ os.system(ddsp_prepare_tfrecord_command)
 #     os.system("mkdir " + drive_data_dir)
 #     print('Saving to {}'.format(drive_data_dir))
 #     os.system("cp " + TRAIN_TFRECORD_FILEPATTERN + " \"" + drive_data_dir + "\"/")
+
 
 data_provider = ddsp.training.data.TFRecordProvider(TRAIN_TFRECORD_FILEPATTERN)
 dataset = data_provider.get_dataset(shuffle=False)
