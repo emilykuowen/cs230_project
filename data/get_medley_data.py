@@ -165,7 +165,7 @@ def coherent(fg_folder, bg_folder, event_template, seed):
     """
     print('coherent before scraper')
     temp_folder = '../../data' + '/temp/mix'
-    mix_folder = '../../data/medleydb_', 'acoustic_guitar' + '/mix'
+    mix_folder = '../../data/medleydb_' + 'acoustic_guitar' + '/mix'
     shutil.move(mix_folder, temp_folder)
     # Create scaper object and seed random state
     sc = scaper.Scaper(
