@@ -29,7 +29,8 @@ for fname in audio_files:
 """
 
 # Preprocess raw audio into TFRecord dataset
-TRAIN_TFRECORD = '../../data/' + 'medleydb_' + instrument + '/tfrecord/train.tfrecord'
+TRAIN_TFRECORD = 'data/train.tfrecord'
+# TRAIN_TFRECORD = '../../data/' + 'medleydb_' + instrument + '/tfrecord/train.tfrecord'
 TRAIN_TFRECORD_FILEPATTERN = TRAIN_TFRECORD + '*'
 
 """
