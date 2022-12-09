@@ -275,7 +275,7 @@ if __name__ == "__main__":
     # fg_folder = '~/.nussl/ismir2020-tutorial/foreground'
     # bg_folder = '~/.nussl/ismir2020-tutorial/background'
     fg_folder = '~/data/medleydb_' + 'acoustic_guitar'
-    bg_folder = '~/data/medleydb_' + 'acoustic_guitar' + '/bg'
+    bg_folder = '~/data' + '/bg'
 
     # musdb = download_musdb18(fg_folder, bg_folder)
     medley = get_medley(fg_folder, bg_folder)
