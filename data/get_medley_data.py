@@ -50,7 +50,7 @@ import shutil
     return musdb """
 
 def get_medley(fg_folder, bg_folder):
-    ms_folder = '/data/medleydb_' + 'acoustic_guitar'
+    ms_folder = '~/data/medleydb_' + 'acoustic_guitar'
     #ms_folder = './mix_source_folder' + '_' + 'acoustic_guitar'
     # create MixSourceFolder-style dataset 
     medley = nussl.datasets.MixSourceFolder(ms_folder)
