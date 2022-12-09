@@ -270,6 +270,8 @@ class MixClosure:
         
     def __call__(self, dataset, seed):
         print('class MixClosure __call__ called which takes in dataset')
+        print(type(dataset))
+        print(dataset)
         return generate_mixture(dataset, self.fg_folder, self.bg_folder, self.event_template, seed)
 
 
@@ -283,13 +285,15 @@ if __name__ == "__main__":
 
     fg_folder = '../../data/medleydb_' + 'acoustic_guitar'
     bg_folder = '../../data' + '/bg'
+    if not os.oath.exists(bg_folder):
+        bg_folder.mkdir(parents=True, exist_ok=True)
     
 
     # musdb = download_musdb18(fg_folder, bg_folder)
     # medley = get_medley(fg_folder, bg_folder)
     # Create a template of probabilistic event parameters
     template_event_parameters = {
-        'label': ('const', 'vocals'),
+        'label': ('const', 'acoustic guitar'),
         'source_file': ('choose', []),
         'source_time': ('uniform', 0, 7),
         'event_time': ('const', 0),
