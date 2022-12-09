@@ -25,7 +25,7 @@ import tensorflow_datasets as tfds
 from scipy.io import wavfile
 import soundfile as sf
 
-instrument = 'bass'
+instrument = 'vocals'
 # Audio should be monophonic (single instrument / voice)
 filename = 'test_audio/piano2.wav'
 audio, sample_rate = librosa.load(filename)
