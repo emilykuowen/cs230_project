@@ -7,13 +7,13 @@ import numpy as np
 
 # os.system("pip install -qU ddsp[data_preparation]==1.6.3")
 
-instrument = 'bass'
+instrument = 'piano'
 
 # Make directories to save model and data
-DRIVE_DIR = '../data/musdb18/train/' + instrument
-AUDIO_DIR = '../data/musdb18/tf_audio/' + instrument
-# DRIVE_DIR = '../../data/medleydb_' + instrument + '/' + instrument
-# AUDIO_DIR = '../../data/medleydb_' + instrument + '/tfaudio'
+# DRIVE_DIR = '../data/musdb18/train/' + instrument
+# AUDIO_DIR = '../data/musdb18/tf_audio/' + instrument
+DRIVE_DIR = '../../data/medleydb_' + instrument + '/' + instrument
+AUDIO_DIR = '../../data/medleydb_' + instrument + '/tfaudio'
 AUDIO_FILEPATTERN = AUDIO_DIR + '/*'
 os.system("mkdir -p " + AUDIO_DIR)
 # SAVE_DIR = os.path.join(DRIVE_DIR, 'ddsp')
@@ -32,7 +32,6 @@ for fname in audio_files:
 
 
 # Preprocess raw audio into TFRecord dataset
-# TRAIN_TFRECORD = 'data/train.tfrecord'
 TRAIN_TFRECORD = 'data/' + instrument + '/train.tfrecord'
 os.system("mkdir -p data/" + instrument)
 # TRAIN_TFRECORD = '../../data/' + 'medleydb_' + instrument + '/tfrecord/train.tfrecord'
