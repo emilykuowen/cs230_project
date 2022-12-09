@@ -49,12 +49,12 @@ import shutil
 
     return musdb """
 
-def get_medley(fg_folder, bg_folder):
+""" def get_medley(fg_folder, bg_folder):
     #ms_folder = '~/data/medleydb_' + 'acoustic_guitar'
     ms_folder = '../../data/medleydb_' + 'acoustic_guitar'
     #ms_folder = './mix_source_folder' + '_' + 'acoustic_guitar'
     # create MixSourceFolder-style dataset 
-    medley = nussl.datasets.MixSourceFolder(ms_folder)
+    medley = nussl.datasets.MixSourceFolder(ms_folder) #needs /mix folder
     #fg_folder = '~/data/medleydb_' + 'acoustic_guitar'
     #bg_folder = '~/data/bg_' + 'acoustic_guitar'
     # create foreground folder
@@ -69,7 +69,7 @@ def get_medley(fg_folder, bg_folder):
     bg_folder = '~/bg'
     bg_folder.mkdir(parents=True, exist_ok=True)
 
-    return medley
+    return medley """
 
 
 def incoherent(fg_folder, bg_folder, event_template, seed):
@@ -104,6 +104,7 @@ def incoherent(fg_folder, bg_folder, event_template, seed):
         List containing the audio signals of the stems that comprise the mixture
     """
     
+    print('incoherent before scraper')
     # Create scaper object and seed random state
     sc = scaper.Scaper(
         duration=5.0,
@@ -162,7 +163,7 @@ def coherent(fg_folder, bg_folder, event_template, seed):
     stem_audio_list : list
         List containing the audio signals of the stems that comprise the mixture
     """
-        
+    print('coherent before scraper')
     # Create scaper object and seed random state
     sc = scaper.Scaper(
         duration=5.0,
@@ -224,7 +225,7 @@ def generate_mixture(dataset, fg_folder, bg_folder, event_template, seed):
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore')
         
-        # flip a coint to choose coherent or incoherent mixing
+        # flip a coin to choose coherent or incoherent mixing
         random_state = np.random.RandomState(seed)
         
         # generate mixture
@@ -236,7 +237,8 @@ def generate_mixture(dataset, fg_folder, bg_folder, event_template, seed):
     # unpack the data
     mixture_audio, mixture_jam, annotation_list, stem_audio_list = data
     
-    # convert mixture to nussl format
+    # convert mixture to nussl format'
+    print('in generate_mixture before dataset function in called')
     mix = dataset._load_audio_from_array(
         audio_data=mixture_audio, sample_rate=dataset.sample_rate
     )
@@ -267,6 +269,9 @@ class MixClosure:
         self.event_template = event_template
         
     def __call__(self, dataset, seed):
+        print('class MixClosure __call__ called which takes in dataset')
+        print(type(dataset))
+        print(dataset)
         return generate_mixture(dataset, self.fg_folder, self.bg_folder, self.event_template, seed)
 
 
@@ -274,14 +279,23 @@ if __name__ == "__main__":
     # only need to run download_musdb18() once
     # fg_folder = '~/.nussl/ismir2020-tutorial/foreground'
     # bg_folder = '~/.nussl/ismir2020-tutorial/background'
-    fg_folder = '~/data/medleydb_' + 'acoustic_guitar'
-    bg_folder = '~/data' + '/bg'
+    ms_folder = '../../data/medleydb_' + 'acoustic_guitar'
+    # create MixSourceFolder-style dataset 
+    medley = nussl.datasets.MixSourceFolder(ms_folder) #needs /mix folder
+
+    fg_folder = '../../data/medleydb_' + 'acoustic_guitar'
+    bg_folder = '../../data' + '/bg'
+    if not os.path.exists(bg_folder):
+        bg_folder = Path(bg_folder).expanduser()
+        bg_folder.mkdir(parents=True, exist_ok=True)
+        bg_folder = str(bg_folder)
+    
 
     # musdb = download_musdb18(fg_folder, bg_folder)
-    medley = get_medley(fg_folder, bg_folder)
+    # medley = get_medley(fg_folder, bg_folder)
     # Create a template of probabilistic event parameters
     template_event_parameters = {
-        'label': ('const', 'vocals'),
+        'label': ('const', 'acoustic guitar'),
         'source_file': ('choose', []),
         'source_time': ('uniform', 0, 7),
         'event_time': ('const', 0),
