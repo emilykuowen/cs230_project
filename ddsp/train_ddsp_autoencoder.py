@@ -7,17 +7,17 @@ import numpy as np
 
 # os.system("pip install -qU ddsp[data_preparation]==1.6.3")
 
-instrument = 'piano'
+instrument = 'vocals'
 
 # Make directories to save model and data
-# DRIVE_DIR = '../data/musdb18/train/' + instrument
-# AUDIO_DIR = '../data/musdb18/tf_audio/' + instrument
-DRIVE_DIR = '../../data/medleydb_' + instrument + '/' + instrument
-AUDIO_DIR = '../../data/medleydb_' + instrument + '/tfaudio'
+DRIVE_DIR = '../data/musdb18/train/' + instrument
+AUDIO_DIR = '../data/musdb18/tf_audio/' + instrument
+# DRIVE_DIR = '../../data/medleydb_' + instrument + '/' + instrument
+# AUDIO_DIR = '../../data/medleydb_' + instrument + '/tfaudio'
 AUDIO_FILEPATTERN = AUDIO_DIR + '/*'
 os.system("mkdir -p " + AUDIO_DIR)
 # SAVE_DIR = os.path.join(DRIVE_DIR, 'ddsp')
-SAVE_DIR = os.path.join('models/bass_new')
+SAVE_DIR = os.path.join('models/', instrument)
 os.system("mkdir -p " + SAVE_DIR)
 
 mp3_files = glob.glob(os.path.join(DRIVE_DIR, '*.mp3'))
