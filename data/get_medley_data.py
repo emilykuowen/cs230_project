@@ -61,9 +61,9 @@ def get_medley(fg_folder, bg_folder):
     # fg_folder = Path(fg_folder).expanduser()  
     # fg_folder.mkdir(parents=True, exist_ok=True) 
     dir_mix = os.path.join(ms_folder, 'mix')                            
-    for f in os.listdir(dir_mix):
-        os.remove(os.path.join(dir_mix,f))
-
+    f#or f in os.listdir(dir_mix):
+        #os.remove(os.path.join(dir_mix,f))
+    os.rmdir(dir_mix)
     # create background folder - we need to provide one even if we don't use it
     bg_folder = Path(bg_folder).expanduser()
     bg_folder.mkdir(parents=True, exist_ok=True)
