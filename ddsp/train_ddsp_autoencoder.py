@@ -7,7 +7,7 @@ import numpy as np
 
 # os.system("pip install -qU ddsp[data_preparation]==1.6.3")
 
-instrument = 'vocals'
+instrument = 'drums'
 
 # Make directories to save model and data
 DRIVE_DIR = '../data/musdb18/train/' + instrument
