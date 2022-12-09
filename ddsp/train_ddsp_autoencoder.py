@@ -25,7 +25,7 @@ for fname in audio_files:
   os.system(cp_command)
 
 # Preprocess raw audio into TFRecord dataset
-TRAIN_TFRECORD = '../../data/' + 'medleydb_' + instrument + 'tfrecord/train.tfrecord'
+TRAIN_TFRECORD = '../../data/' + 'medleydb_' + instrument + '/tfrecord/train.tfrecord'
 TRAIN_TFRECORD_FILEPATTERN = TRAIN_TFRECORD + '*'
 
 # # Copy dataset from drive if dataset has already been created.
