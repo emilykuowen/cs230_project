@@ -59,7 +59,7 @@ ax[1].set_ylabel('f0 [midi]')
 ax[2].plot(audio_features['f0_confidence'][:TRIM])
 ax[2].set_ylabel('f0 confidence')
 _ = ax[2].set_xlabel('Time step [frame]')
-plt.savefig('audio_features.png')
+plt.savefig(instrument + '_audio_features.png')
 
 model_dir = "models/" + instrument
 # Load the dataset statistics
