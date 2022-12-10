@@ -277,8 +277,10 @@ class MixClosure:
         print(dataset)
         return generate_mixture(dataset, self.fg_folder, self.bg_folder, self.event_template, seed)
 
-
+count = 0
 if __name__ == "__main__":
+    count = count + 1
+    print(count)
     # only need to run download_musdb18() once
     # fg_folder = '~/.nussl/ismir2020-tutorial/foreground'
     # bg_folder = '~/.nussl/ismir2020-tutorial/background'
@@ -344,6 +346,6 @@ if __name__ == "__main__":
         mix = item['mix']
         print(mix)
         mix.write_audio_to_file('./gen_mix.wav')
-        sources = item['sources']['acoustic_cdguitar']
+        sources = item['sources']['acoustic_guitar']
         print(sources)
         sources.write_audio_to_file('./gen_acoustic_guitar.wav') 
