@@ -81,10 +81,10 @@ Run the following command in terminal:
 ddsp_run \
   --mode=train \
   --alsologtostderr \
-  --save_dir="model/vocals_medleydb" \
-  --gin_file=model/solo_instrument.gin \
+  --save_dir="model/drums" \
+  --gin_file=models/solo_instrument.gin \
   --gin_file=datasets/tfrecord.gin \
-  --gin_param="TFRecordProvider.file_pattern='data/vocals_medleydb/train.tfrecord*'" \
+  --gin_param="TFRecordProvider.file_pattern='data/drums/train.tfrecord*'" \
   --gin_param="batch_size=16" \
   --gin_param="train_util.train.num_steps=30000" \
   --gin_param="train_util.train.steps_per_save=300" \
