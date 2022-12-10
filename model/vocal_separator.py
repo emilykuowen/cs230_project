@@ -234,7 +234,7 @@ def plot_validation_loss(filepath, output_path):
     plt.plot(loss_history)
     plt.xlabel('# of Epochs')
     plt.ylabel('Validation loss')
-    plt.title('Validation Loss of Vocal Separator Model')
+    plt.title('L1 Loss of Vocal Separator Model')
     plt.savefig(output_path + 'validation_loss.png')
 
 
