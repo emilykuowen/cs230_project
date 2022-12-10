@@ -30,9 +30,9 @@ We mainly use two existing datasets, [MUSDB18](https://zenodo.org/record/1117372
 - MUSDB18 is downloaded by the libraries [common](https://github.com/source-separation/tutorial/tree/master/common) and [nussl](https://github.com/nussl/nussl). In the main function of model files like `model/bass_separator.py`, the function `data.prepare_musdb(dataset_path)` downloads 7-second segments of the MUSDB18 dataset and the function `nussl.datasets.MUSDB18(subsets=['test'], transform=tfm)` allows you to access a specific subset.
 
 #### MedleyDB
-[MedleyDB](https://medleydb.weebly.com/) 1.0 and 2.0 contain 196 total multi-tracks with mixed and processed stems along with raw audio with annotations and metadata. Unlike MUSDB18 that has fixed instrument stems for each track, MedleyDB has different instrument stems for each track. Thus, in order to extract tracks that contain the instrument we'd like to separate, we wrote `medley_proprocess.py`, which you can run to extract new instrument stems from the dataset.
+[MedleyDB](https://medleydb.weebly.com/) 1.0 and 2.0 contain 196 total multi-tracks with mixed and processed stems along with raw audio with annotations and metadata. Unlike MUSDB18 that has fixed instrument stems for each track, MedleyDB has different instrument stems for each track. Thus, in order to extract tracks that contain the instrument we'd like to separate, we wrote `medley_proprocess.py`, which you can run to extract instrument stems from the dataset.
 
-We've processed the MedleyDB dataset to extract the following instruments: acoustic guitar, bass, flute, piano, and violin. If you'd like to download them, you can run the commands below:
+We've processed the MedleyDB dataset to extract the following instruments: acoustic guitar, bass, flute, piano, and violin. If you'd like to download them, you can run the commands below (beware of the large file sizes):
 ```bash
 # To download the acoustic guitar stems (4.3 GB)
 aws s3 sync s3://medleydb/acoustic_guitar/ "path to your data folder"
@@ -46,7 +46,7 @@ aws s3 sync s3://medleydb/piano/ "path to your data folder"
 aws s3 sync s3://medleydb/violin/ "path to your data folder"
 ```
 
-If you'd like to extract new instrument stems, follow these steps:
+If you'd like to extract stems of other instruments in MedleyDB, you can follow these steps:
 1. Download the full MedleyDB 1.0 dataset [here](https://zenodo.org/record/1649325#.Y5UADuzMJ4l) and the MedleyDB 2.0 dataset [here](https://zenodo.org/record/1715175#.Y5UAD-zMJ4l).
 2. Download the [metadata folder](https://github.com/marl/medleydb/tree/master/medleydb/data/Metadata) that contains stem information about each track.
 3. Make the following changes in `data/medley_preprocess.py`
