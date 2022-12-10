@@ -49,7 +49,7 @@ cd ddsp
 ```bash
 python3 train_ddsp_autoencoder.py
 ```
-The tfrecord files will be stored in `ddsp/data/instrument_name`
+The tfrecord files will be stored in `ddsp/data/instrument_name`.
 4. Run DDSP training
 ```bash
 ddsp_run \
