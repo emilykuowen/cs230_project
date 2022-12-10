@@ -17,7 +17,7 @@ AUDIO_DIR = '../../data/medleydb_' + instrument + '/tfaudio'
 AUDIO_FILEPATTERN = AUDIO_DIR + '/*'
 os.system("mkdir -p " + AUDIO_DIR)
 # SAVE_DIR = os.path.join(DRIVE_DIR, 'ddsp')
-SAVE_DIR = os.path.join('models/', instrument, '_medleydb')
+SAVE_DIR = os.path.join('model/', instrument, '_medleydb')
 os.system("mkdir -p " + SAVE_DIR)
 
 mp3_files = glob.glob(os.path.join(DRIVE_DIR, '*.mp3'))
@@ -82,8 +82,8 @@ Run the following command in terminal:
 ddsp_run \
   --mode=train \
   --alsologtostderr \
-  --save_dir="models/vocals_medleydb" \
-  --gin_file=models/solo_instrument.gin \
+  --save_dir="model/vocals_medleydb" \
+  --gin_file=model/solo_instrument.gin \
   --gin_file=datasets/tfrecord.gin \
   --gin_param="TFRecordProvider.file_pattern='data/vocals_medleydb/train.tfrecord*'" \
   --gin_param="batch_size=16" \

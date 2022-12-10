@@ -27,7 +27,10 @@ import soundfile as sf
 
 instrument = 'bass_medleydb'
 # Audio should be monophonic (single instrument / voice)
-filename = 'test_audio/piano_low_Cmaj.wav'
+# filename = 'test_audio/piano_low_Cmaj.wav'
+filename = 'timbre_reference/bass.wav'
+ckpt_name = 'ckpt-22800.data-00000-of-00001'
+
 audio, sample_rate = librosa.load(filename)
 # print("audio shape: ", audio.shape)
 if len(audio.shape) == 1:
@@ -61,7 +64,7 @@ ax[2].set_ylabel('f0 confidence')
 _ = ax[2].set_xlabel('Time step [frame]')
 plt.savefig('input_audio_features.png')
 
-model_dir = "models/" + instrument
+model_dir = "model/" + instrument
 # Load the dataset statistics
 # DATASET_STATS = None
 # dataset_stats_file = os.path.join(model_dir, 'dataset_statistics.pkl')
@@ -112,8 +115,8 @@ for key in ['f0_hz', 'f0_confidence', 'loudness_db']:
 audio_features['audio'] = audio_features['audio'][:, :n_samples]
 
 # Assumes only one checkpoint in the folder, 'ckpt-[iter]`.
-ckpt_files = [f for f in tf.io.gfile.listdir(model_dir) if 'ckpt' in f]
-ckpt_name = ckpt_files[0].split('.')[0]
+# ckpt_files = [f for f in tf.io.gfile.listdir(model_dir) if 'ckpt' in f]
+# ckpt_name = ckpt_files[0].split('.')[0]
 ckpt = os.path.join(model_dir, ckpt_name)
 
 # Set up the model just to predict audio given new conditioning
