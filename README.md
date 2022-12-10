@@ -109,7 +109,7 @@ if 'condition' in self.config['modules']['model']['args'].keys():
                 
 - Add `strict=False` to line 240 in the load function - 
 ```python
-   model.load_state_dict(model_dict['state_dict'], strict=False)
+model.load_state_dict(model_dict['state_dict'], strict=False)
 ```
   
 4. You're all set to train the source separation model!
@@ -118,7 +118,10 @@ The `ConditionedRecurrentStack` class in `nussl_modules.py` contains the model a
 
 Example command to train a bass separator model with conditioning:
 ```bash
-  python3 bass_separator_with_conditioning.py
+# switch into the model directory
+cd model
+# run a model of your choice
+python3 bass_separator_with_conditioning.py
 ```
 
 ## Useful Commands
