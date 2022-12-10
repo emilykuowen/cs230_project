@@ -10,7 +10,7 @@ $$\gamma, \beta = f(c)$$
 
 $$\hat{a} = \gamma x + \beta$$
 
-** INSERT PICTURE HERE **
+<img src="https://user-images.githubusercontent.com/54175817/206850778-eb98dd9f-745f-48db-bf28-387e41fc9e39.jpg" alt="novel_arch_fin" style="max-width: 100%;" width="300">
 
 ## Requirements
 To install the requirements needed for our code:
@@ -89,14 +89,14 @@ ddsp_run \
 
 Before training the model, you will need to make the following changes.
 
-1. Run the following command in your terminal. If it cannot find the library, check the Requirements section to install the requirements.
+1. Run the following command in your terminal. If it cannot find nussl, check above to install the requirements.
 ```bash
 python -m pip show nussl
 ```
 
 2. Open the `separation_model.py` file using the following command, where * is the path displayed in the above step.
 ```bash
-vi */nussl/
+vi */nussl/ml/networks/separation_model.py 
 ```
 
 3. Make the following changes to the file
