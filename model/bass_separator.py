@@ -166,7 +166,7 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     global optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     global loss_fn
-    loss_fn = nussl.ml.trian.loss.SISDRLoss()
+    loss_fn = nussl.ml.train.loss.SISDRLoss()
     # loss_fn = nussl.ml.train.loss.L1Loss()
 
     # Create the engines
