@@ -160,8 +160,7 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     val_data = data.on_the_fly(stft_params, transform=tfm, 
         fg_path=val_folder, num_mixtures=10, coherent_prob=1.0)
     val_dataloader = torch.utils.data.DataLoader(val_data, num_workers=1, batch_size=batch_size)
-    
-    condition = np.load("../ddsp/bass_harmonic_distribution.npy")
+    condition = np.load("../ddsp/harmonic_distribution_output/bass_medleydb_harmonic_distribution_bass_one_note.npy")
     condition = condition.tolist()
 
     nf = stft_params.window_length // 2 + 1
@@ -185,11 +184,11 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     nussl.ml.train.add_validate_and_checkpoint(output_folder, model, 
         optimizer, train_data, trainer, val_dataloader, validator)
 
-    # trainer.run(
-    #     train_dataloader,
-    #     max_epochs=max_epochs,
-    #     epoch_length=epoch_length
-    # )
+    trainer.run(
+        train_dataloader,
+        max_epochs=max_epochs,
+        epoch_length=epoch_length
+    )
 
 
 def evaluate(separator, output_path):
@@ -254,7 +253,7 @@ if __name__ == "__main__":
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     MAX_MIXTURES = int(1e8) # We'll set this to some impossibly high number for on the fly mixing.
     stft_params = nussl.STFTParams(window_length=512, hop_length=128, window_type='sqrt_hann')
-    output_path = 'bass_conditioning_output/'
+    output_path = 'bass_conditioning_output_with_enhanced_ddsp/'
     output_folder = Path(output_path).absolute()
     
     dataset_path = str(Path.home()) + '/.nussl/tutorial'
