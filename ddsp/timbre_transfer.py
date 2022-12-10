@@ -142,7 +142,7 @@ print("Harmonic distribution shape: ", harmonic_distribution.shape)
 harmonic_distribution = harmonic_distribution[:,:,0].numpy().flatten()
 print("Trimmed harmonic distribution: ", harmonic_distribution)
 print("Trimmed harmonic distribution shape: ", harmonic_distribution.shape)
-np.save(instrument + '_harmonic_distribution.npy', harmonic_distribution)
+np.save('harmonic_distribution_output/' + instrument + '_harmonic_distribution.npy', harmonic_distribution)
 
 audio_gen = model.get_audio_from_outputs(outputs)
 audio_gen = np.transpose(audio_gen.numpy())
