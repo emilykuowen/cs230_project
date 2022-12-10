@@ -27,12 +27,12 @@ import soundfile as sf
 
 instrument = 'vocals'
 # Audio should be monophonic (single instrument / voice)
-filename = 'test_audio/piano2.wav'
+filename = 'test_audio/piano_low_Cmaj.wav'
 audio, sample_rate = librosa.load(filename)
-print("audio shape: ", audio.shape)
+# print("audio shape: ", audio.shape)
 if len(audio.shape) == 1:
   audio = audio[np.newaxis, :]
-print("new audio shape: ", audio.shape)
+# print("new audio shape: ", audio.shape)
 
 # Setup the session
 ddsp.spectral_ops.reset_crepe()

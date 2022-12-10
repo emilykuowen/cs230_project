@@ -7,7 +7,7 @@ import numpy as np
 
 # os.system("pip install -qU ddsp[data_preparation]==1.6.3")
 
-instrument = 'bass'
+instrument = 'vocals'
 
 # Make directories to save model and data
 # DRIVE_DIR = '../data/musdb18/train/' + instrument
@@ -74,33 +74,20 @@ ax[1].plot(x, ex['f0_hz'])
 ax[2].set_ylabel('F0_confidence')
 ax[2].set_xlabel('seconds')
 ax[2].plot(x, ex['f0_confidence'])
-plt.savefig( 'tfaudio_features.png')
+plt.savefig('tfaudio_features.png')
 
 """
 Run the following command in terminal:
-ddsp_prepare_tfrecord --input_audio_filepatterns="../../data/medleydb_piano/tfaudio/*" --output_tfrecord_path="../../data/medleydb_piano/tfrecord/train.tfrecord*" --num_shards=10 --alsologtostderr
 
 ddsp_run \
   --mode=train \
   --alsologtostderr \
-  --save_dir="../data/train/bass/ddsp-solo-instrument" \
+  --save_dir="models/vocals_medleydb" \
   --gin_file=models/solo_instrument.gin \
   --gin_file=datasets/tfrecord.gin \
-  --gin_param="TFRecordProvider.file_pattern='data/train.tfrecord*'" \
+  --gin_param="TFRecordProvider.file_pattern='data/vocals_medleydb/train.tfrecord*'" \
   --gin_param="batch_size=16" \
   --gin_param="train_util.train.num_steps=30000" \
   --gin_param="train_util.train.steps_per_save=300" \
-  --gin_param="trainers.Trainer.checkpoints_to_keep=10"
-
-ddsp_run \
-  --mode=train \
-  --alsologtostderr \
-  --save_dir="models/piano" \
-  --gin_file=models/solo_instrument.gin \
-  --gin_file=datasets/tfrecord.gin \
-  --gin_param="TFRecordProvider.file_pattern='../../data/medleydb_piano/tfrecord/train.tfrecord*'" \
-  --gin_param="batch_size=16" \
-  --gin_param="train_util.train.num_steps=30000" \
-  --gin_param="train_util.train.steps_per_save=300" \
-  --gin_param="trainers.Trainer.checkpoints_to_keep=10"
+  --gin_param="trainers.Trainer.checkpoints_to_keep=5"
 """
