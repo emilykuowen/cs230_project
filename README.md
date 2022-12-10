@@ -33,11 +33,9 @@ aws s3 sync s3://medleydb/violin/ "path to your data folder"
 ```
 
 ### DDSP Pre-training
-We used the [DDSP](https://github.com/magenta/ddsp) model to produce the conditioning input for our model. We define the conditioning input as the harmonic distribution of the instrument we want to separate. For example, to generate the conditioning input of a bass separator, one would run a single-note bass audio file through a DDSP model pretrained on bass sounds and get the harmonic distrbution outputted from the DDSP model.
+We used the [DDSP](https://github.com/magenta/ddsp) model to produce the conditioning input for our model. We define the conditioning input as the harmonic distribution of the instrument we want to separate. For example, to generate the conditioning input of a bass separator, we would run a single-note bass audio file through a DDSP model pretrained on bass sounds to get the harmonic distrbution of bass.
 
-We've generated conditioning inputs for bass and vocals. Those conditioning inputs are saved as `.npy` files in the folder `ddsp/harmonic_distribution_output/`.
-
-We've previously trained DDSP models on bass and vocals.
+We've previously trained DDSP models and generated conditioning inputs for bass and vocals. Those conditioning inputs are stored as `.npy` files in the folder `ddsp/harmonic_distribution_output/`.
 
 To train a DDSP model on a new instrument using your own data, follow these steps:
 1. In `train_ddsp_autoencoder.py`, change the string `instrument` to the instrument you'd like to train the model on (this is so that the output folder paths get changed correspondingly).
@@ -49,7 +47,7 @@ cd ddsp
 ```bash
 python3 train_ddsp_autoencoder.py
 ```
-The tfrecord files will be stored in `ddsp/data/instrument_name`.
+The tfrecord files will be stored in `ddsp/data/"instrument_name"`.
 4. Run DDSP training
 ```bash
 ddsp_run \
