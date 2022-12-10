@@ -25,7 +25,7 @@ import tensorflow_datasets as tfds
 from scipy.io import wavfile
 import soundfile as sf
 
-instrument = 'vocal'
+instrument = 'vocals'
 # Audio should be monophonic (single instrument / voice)
 # filename = 'test_audio/piano_low_Cmaj.wav'
 filename = 'timbre_reference/vocal.wav'
