@@ -101,20 +101,24 @@ Before training the model, you will need to make the following changes.
   vi */nussl/
 ```
 
-3. Make the following changes to the file - 
-   Add the following line to the save function (line 243) - 
-   `if 'condition' in self.config['modules']['model']['args'].keys():
-            if isinstance(self.config['modules']['model']['args']['condition'], torch.Tensor):
-                self.config['modules']['model']['args']['condition'] = self.config['modules']['model']['args']['condition'].tolist()`
+3. Make the following changes to the file
+- Add the following line to the save function (line 243) 
+```python
+  if 'condition' in self.config['modules']['model']['args'].keys():
+    if isinstance(self.config['modules']['model']['args']['condition'], torch.Tensor):
+      self.config['modules']['model']['args']['condition'] = self.config['modules']['model']['args']['condition'].tolist()
+```
                 
-  Add `strict=False` to line 240 in the load function - 
-  model.load_state_dict(model_dict['state_dict'], strict=False)
+- Add `strict=False` to line 240 in the load function - 
+```python
+   model.load_state_dict(model_dict['state_dict'], strict=False)
+```
   
 4. You're all ready to train the source separation model!
 
 The `ConditionedRecurrentStack` class in `nussl_modules.py` contains the model architecturethat can be run using one of the `*_train.py` codes.
 
-- explain each training cod
+#### explain each training cod
 
 
 Example command to train conditioned separation model for bass:
