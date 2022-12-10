@@ -114,7 +114,8 @@ def train_step(engine, batch):
     optimizer.step()
     
     loss_vals = {
-        'L1Loss': loss.item(),
+        'SISDRLoss': loss.item(),
+        # 'L1Loss': loss.item(),
         'loss': loss.item()
     } 
     
@@ -129,7 +130,8 @@ def val_step(engine, batch):
         batch['source_magnitudes']
     )       
     loss_vals = {
-        'L1Loss': loss.item(), 
+        'SISDRLoss': loss.item(),
+        # 'L1Loss': loss.item(), 
         'loss': loss.item()
     }
     return loss_vals
@@ -164,7 +166,8 @@ def train(output_folder, batch_size, max_epochs, epoch_length):
     global optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     global loss_fn
-    loss_fn = nussl.ml.train.loss.L1Loss()
+    loss_fn = nussl.ml.trian.loss.SISDRLoss()
+    # loss_fn = nussl.ml.train.loss.L1Loss()
 
     # Create the engines
     trainer, validator = nussl.ml.train.create_train_and_validation_engines(
@@ -233,11 +236,12 @@ def plot_validation_loss(filepath, output_path):
     model_checkpoint = torch.load(filepath, map_location=torch.device('cpu'))
     # print("trainer.state_dict")
     # print(model_checkpoint['metadata']['trainer.state_dict'])
-    loss_history = model_checkpoint['metadata']['trainer.state.epoch_history']['validation/L1Loss']
+    # loss_history = model_checkpoint['metadata']['trainer.state.epoch_history']['validation/L1Loss']
+    loss_history = model_checkpoint['metadata']['trainer.state.epoch_history']['validation/SISDRLoss']
     plt.plot(loss_history)
     plt.xlabel('# of Epochs')
     plt.ylabel('Validation loss')
-    plt.title('Validation Loss of Bass Separator Model')
+    plt.title('SISDR Loss of Bass Separator Model')
     plt.savefig(output_path + 'validation_loss.png')
 
 
@@ -246,7 +250,7 @@ if __name__ == "__main__":
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     MAX_MIXTURES = int(1e8) # We'll set this to some impossibly high number for on the fly mixing.
     stft_params = nussl.STFTParams(window_length=512, hop_length=128, window_type='sqrt_hann')
-    output_path = 'bass_output/'
+    output_path = 'bass_output_SISDR/'
     output_folder = Path(output_path).absolute()
     
     dataset_path = str(Path.home()) + '/.nussl/tutorial'
