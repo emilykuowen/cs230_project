@@ -123,7 +123,7 @@ def incoherent(fg_folder, bg_folder, event_template, seed):
     
     # Iterate over stem types and add INCOHERENT events
     # labels = ['vocals', 'drums', 'bass', 'other']
-    labels = ['acoustic guitar', 'other']
+    labels = ['acoustic_guitar', 'other']
     for label in labels:
         event_parameters['label'] = ('const', label)
         sc.add_event(**event_parameters)
@@ -164,6 +164,9 @@ def coherent(fg_folder, bg_folder, event_template, seed):
         List containing the audio signals of the stems that comprise the mixture
     """
     print('coherent before scraper')
+    temp_folder = '../../data' + '/temp/mix'
+    mix_folder = '../../data/medleydb_' + 'acoustic_guitar' + '/mix'
+    shutil.move(mix_folder, temp_folder)
     # Create scaper object and seed random state
     sc = scaper.Scaper(
         duration=5.0,
@@ -199,7 +202,7 @@ def coherent(fg_folder, bg_folder, event_template, seed):
     # Iterate over the four stems (vocals, drums, bass, other) and 
     # add COHERENT events.                                         
     # labels = ['vocals', 'drums', 'bass', 'other']
-    labels = ['acoustic guitar', 'other']
+    labels = ['acoustic_guitar', 'other']
     for label in labels:
         
         # Set the label to the stem we are adding
@@ -210,7 +213,7 @@ def coherent(fg_folder, bg_folder, event_template, seed):
         # All we have to do is replace the stem file's parent folder name from "vocals" 
         # to the label we are adding in this iteration of the loop, which will give the 
         # correct path to the stem source file for this current label.
-        coherent_source_file = event.source_file.replace('acoustic guitar', label)
+        coherent_source_file = event.source_file.replace('acoustic_guitar', label)
         event_parameters['source_file'] = ('const', coherent_source_file)
         # Add the event using the modified, COHERENT, event parameters
         sc.add_event(**event_parameters)
@@ -290,12 +293,18 @@ if __name__ == "__main__":
         bg_folder.mkdir(parents=True, exist_ok=True)
         bg_folder = str(bg_folder)
     
+    temp_folder = '../../data' + '/temp'
+    if not os.path.exists(temp_folder):
+        temp_folder = Path(temp_folder).expanduser()
+        temp_folder.mkdir(parents=True, exist_ok=True)
+        temp_folder = str(temp_folder)
+    
 
     # musdb = download_musdb18(fg_folder, bg_folder)
     # medley = get_medley(fg_folder, bg_folder)
     # Create a template of probabilistic event parameters
     template_event_parameters = {
-        'label': ('const', 'acoustic guitar'),
+        'label': ('const', 'acoustic_guitar'),
         'source_file': ('choose', []),
         'source_time': ('uniform', 0, 7),
         'event_time': ('const', 0),
@@ -330,11 +339,11 @@ if __name__ == "__main__":
         mix_closure=mix_func
     )
 
-    for i in range(3):
+    for i in range(1): # ' acoustic guitar' abd 'other'
         item = on_the_fly[i]
         mix = item['mix']
         print(mix)
         mix.write_audio_to_file('./gen_mix.wav')
-        sources = item['sources']['acoustic guitar']
+        sources = item['sources']['acoustic_cdguitar']
         print(sources)
         sources.write_audio_to_file('./gen_acoustic_guitar.wav') 
