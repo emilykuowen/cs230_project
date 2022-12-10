@@ -191,9 +191,7 @@ def evaluate(separator, output_path):
     output_folder = Path(output_path).absolute()
     output_folder.mkdir(exist_ok=True)
 
-    # TODO: change the for loop to loop through the whole test dataset when doing final evaluations
-    # for i in range(len(test_dataset)):
-    for i in range(5):
+    for i in range(len(test_dataset)):
         item = test_dataset[i]
         separator.audio_signal = item['mix']
         filename = item['mix'].file_name
@@ -256,7 +254,7 @@ if __name__ == "__main__":
     # batch_size = number of training examples in a batch
     # max_epoch = total number of epochs ran in training
     # epoch_length = number of batches in one epoch
-    train(output_folder, batch_size=10, max_epochs=30, epoch_length=20)
+    # train(output_folder, batch_size=10, max_epochs=30, epoch_length=20)
 
     checkpoint_path = output_path + 'checkpoints/best.model.pth'
     separator = nussl.separation.deep.DeepMaskEstimation(
