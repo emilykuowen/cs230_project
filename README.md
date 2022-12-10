@@ -2,7 +2,7 @@
 Group Members: Emily Kuo, Samantha Long, Sneha Shah
 
 ## Requirements
-To install the requirements needed for our code
+To install the requirements needed for our code:
 ```bash
 pip install -r requirements.txt
 ```
@@ -34,10 +34,12 @@ aws s3 sync s3://medleydb/violin/ "path to your data folder"
 ### Deep Mask Estimation Training
 
 ## Useful Commands
+To ssh into the AWS instance:
 ```bash
-# To ssh into the AWS instance:
 ssh -i "~/.ssh/cs230.pem" ubuntu@ec2-54-149-20-20.us-west-2.compute.amazonaws.com
+```
 
-# To run jupyter notebook on the AWS instance:
+To run jupyter notebook on the AWS instance:
+```bash
 ssh -i "~/.ssh/cs230.pem" -fNL 9000:localhost:8888 ubuntu@ec2-54-149-20-20.us-west-2.compute.amazonaws.com
 ```
