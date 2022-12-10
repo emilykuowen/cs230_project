@@ -194,8 +194,6 @@ def evaluate(separator, output_path):
     output_folder = Path(output_path).absolute()
     output_folder.mkdir(exist_ok=True)
 
-    # TODO: change the for loop to loop through the whole test dataset when doing final evaluations
-    # for i in range(len(test_dataset)):
     for i in range(len(test_dataset)):
         item = test_dataset[i]
         separator.audio_signal = item['mix']

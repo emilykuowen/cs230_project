@@ -25,8 +25,14 @@ conda install -c conda-forge ffmpeg
 ## Usage
 ### Data
 We mainly use two existing datasets, [MUSDB18](https://zenodo.org/record/1117372#.Y5Pfv-zMLdo) and [MedleyDB](https://medleydb.weebly.com/), to train our music source separation model.
-- MUSDB18 is downloaded by the library [nussl](https://github.com/nussl/nussl).
-- The preprocessed version of MedleyDB can be downloaded by the following commands (be aware of the large file sizes):
+#### MUSDB18
+[MUSDB18](https://zenodo.org/record/1117372#.Y5Pfv-zMLdo) includes 10 hours of 150 full length musical tracks of different genres along with their isolated drums, bass, vocals, and other categories of stems.
+- MUSDB18 is downloaded by the libraries [common](https://github.com/source-separation/tutorial/tree/master/common) and [nussl](https://github.com/nussl/nussl). In the main function of model files like `model/bass_separator.py`, the function `data.prepare_musdb(dataset_path)` downloads 7-second segments of the MUSDB18 dataset and the function `nussl.datasets.MUSDB18(subsets=['test'], transform=tfm)` allows you to access a specific subset.
+
+#### MedleyDB
+[MedleyDB](https://medleydb.weebly.com/) 1.0 and 2.0 contain 196 total multi-tracks with mixed and processed stems along with raw audio with annotations and metadata. Unlike MUSDB18 that has fixed instrument stems for each track, MedleyDB has different instrument stems for each track. Thus, in order to extract tracks that contain the instrument we'd like to separate, we wrote `medley_proprocess.py`, which you can run to extract new instrument stems from the dataset.
+
+We've processed the MedleyDB dataset to extract the following instruments: acoustic guitar, bass, flute, piano, and violin. If you'd like to download them, you can run the commands below:
 ```bash
 # To download the acoustic guitar stems (4.3 GB)
 aws s3 sync s3://medleydb/acoustic_guitar/ "path to your data folder"
@@ -39,6 +45,14 @@ aws s3 sync s3://medleydb/piano/ "path to your data folder"
 # To download the violin stems (5.27 GB)
 aws s3 sync s3://medleydb/violin/ "path to your data folder"
 ```
+
+If you'd like to extract new instrument stems, follow these steps:
+1. Download the full MedleyDB 1.0 dataset [here](https://zenodo.org/record/1649325#.Y5UADuzMJ4l) and the MedleyDB 2.0 dataset [here](https://zenodo.org/record/1715175#.Y5UAD-zMJ4l).
+2. Download the [metadata folder](https://github.com/marl/medleydb/tree/master/medleydb/data/Metadata) that contains stem information about each track.
+3. Make the following changes in `data/medley_preprocess.py`
+- Edit `track_dir` to the folder path that contains all of your MedleyDB track folders.
+- Edit `metadata_dir` to the folder path that contains the MedleyDB metadata.
+4. Run `python data/medley_preprocess.py`
 
 ### DDSP Pre-training
 We used the [DDSP](https://github.com/magenta/ddsp) model to produce the conditioning input for our model. We define the conditioning input as the harmonic distribution of the instrument we want to separate. For example, to generate the conditioning input of a bass separator, we would run a single-note bass audio file through a DDSP model pretrained on bass sounds to get the harmonic distrbution of bass.

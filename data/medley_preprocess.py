@@ -27,19 +27,16 @@ import wavio as wv
 from scipy.io import wavfile
 from scipy.io.wavfile import write
 
-
-# directory that MedleyDB dataset is downloaded to
-# dir_in_str = './MedleyDB_sample/Audio/'
-# track directory
-dir_in_str = 'medleydb/tracks/'
-# .yaml directory
-ydir = 'medleydb/metadata/'
+# MedleyDB track directory
+track_dir = 'medleydb/tracks/'
+# MedleyDB .yaml directory
+metadata_dir = 'medleydb/metadata/'
 
 # change label depending on which instrument we want to separate
 instrument_label = 'piano' 
 
 # prepare new directory structure
-new_dir = './mix_source_folder'
+new_dir = './' + instrument_label
 new_mix_path = os.path.join(new_dir, 'mix')
 new_instr_path = os.path.join(new_dir, instrument_label)
 new_other_path = os.path.join(new_dir, 'other')
@@ -53,11 +50,11 @@ if not os.path.exists(new_dir):
 # loop through all yaml files
 # access yaml file
 # convert to dict and search for instrument source
-for yfilename in os.listdir(ydir):
+for yfilename in os.listdir(metadata_dir):
     if yfilename != '.DS_Store' and yfilename != 'AimeeNorwich_Child_METADATA.yaml':
         print(yfilename)
         # looping through all yaml files
-        f = os.path.join(ydir, yfilename)
+        f = os.path.join(metadata_dir, yfilename)
         if os.path.isfile(f):
             yfile = open(f, 'r')
             # creates dictionary of .yaml file contents
@@ -80,7 +77,7 @@ for yfilename in os.listdir(ydir):
                             # make path in medleydb folder with trackname
                 print(len(stem_nos))
                 # make sure track folder exists in medleydb
-                f = os.path.join(dir_in_str, trackname)
+                f = os.path.join(track_dir, trackname)
                 if path.exists(f):
                     #print('track exists for .yaml')
                     # special case, in which multiple stems have same instrument label
@@ -91,10 +88,10 @@ for yfilename in os.listdir(ydir):
                         # iterate through stem_nos
                         for s in range(len(stem_nos)):
                             #stem_num = int(stem_nos[s])
-                            instr_paths.append(os.path.join(dir_in_str, trackname, trackname + '_STEMS', trackname + '_STEM_' + stem_nos[s] + '.wav'))
+                            instr_paths.append(os.path.join(track_dir, trackname, trackname + '_STEMS', trackname + '_STEM_' + stem_nos[s] + '.wav'))
                         #print(len(instr_paths))
                         #print(instr_paths)
-                        mix_path = os.path.join(dir_in_str, trackname, trackname + '_MIX.wav')
+                        mix_path = os.path.join(track_dir, trackname, trackname + '_MIX.wav')
       
                         fs2, data2 = wavfile.read(mix_path)
                         # get individual stem .wav files and store in data1 list 
@@ -122,8 +119,8 @@ for yfilename in os.listdir(ydir):
                         print('len == 1')
                         #stem_num = int(stem_nos[0])
                         #print(stem_num)
-                        instr_path = os.path.join(dir_in_str, trackname, trackname + '_STEMS', trackname + '_STEM_' + stem_nos[0] + '.wav')
-                        mix_path = os.path.join(dir_in_str, trackname, trackname + '_MIX.wav')
+                        instr_path = os.path.join(track_dir, trackname, trackname + '_STEMS', trackname + '_STEM_' + stem_nos[0] + '.wav')
+                        mix_path = os.path.join(track_dir, trackname, trackname + '_MIX.wav')
                     
                         # get inside track's folder to stems
                         fs1, data1 = wavfile.read(instr_path)
