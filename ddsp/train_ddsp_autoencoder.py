@@ -7,34 +7,33 @@ import numpy as np
 
 # os.system("pip install -qU ddsp[data_preparation]==1.6.3")
 
-instrument = 'vocals'
+instrument = 'drums'
 
 # Make directories to save model and data
-# DRIVE_DIR = '../data/musdb18/train/' + instrument
-# AUDIO_DIR = '../data/musdb18/tf_audio/' + instrument
-DRIVE_DIR = '../../data/medleydb_' + instrument + '/' + instrument
-AUDIO_DIR = '../../data/medleydb_' + instrument + '/tfaudio'
+DRIVE_DIR = '../data/musdb18/train/' + instrument
+AUDIO_DIR = '../data/musdb18/tf_audio/' + instrument
+# DRIVE_DIR = '../../data/medleydb_' + instrument + '/' + instrument
+# AUDIO_DIR = '../../data/medleydb_' + instrument + '/tfaudio'
 AUDIO_FILEPATTERN = AUDIO_DIR + '/*'
 os.system("mkdir -p " + AUDIO_DIR)
 # SAVE_DIR = os.path.join(DRIVE_DIR, 'ddsp')
-SAVE_DIR = os.path.join('model/', instrument, '_medleydb')
+SAVE_DIR = os.path.join('model/', instrument)
 os.system("mkdir -p " + SAVE_DIR)
 
 mp3_files = glob.glob(os.path.join(DRIVE_DIR, '*.mp3'))
 wav_files = glob.glob(os.path.join(DRIVE_DIR, '*.wav'))
 audio_files = mp3_files + wav_files
 
-for i in range(0, 6):
-    fname = audio_files[i]
+for fname in audio_files:
     target_name = os.path.join(AUDIO_DIR, os.path.basename(fname).replace(' ', '_'))
     print('Copying {} to {}'.format(fname, target_name))
     cp_command = "cp \"" + fname + "\" " + target_name
     os.system(cp_command)
 
 # Preprocess raw audio into TFRecord dataset
-os.system("mkdir -p data/" + instrument + '_medleydb')
-TRAIN_TFRECORD = 'data/' + instrument + '_medleydb/train.tfrecord'
-# TRAIN_TFRECORD = '../../data/' + 'medleydb_' + instrument + '/tfrecord/train.tfrecord'
+os.system("mkdir -p data/" + instrument)
+# TRAIN_TFRECORD = 'data/' + instrument + '_medleydb/train.tfrecord'
+TRAIN_TFRECORD = '../../data/' + 'medleydb_' + instrument + '/tfrecord/train.tfrecord'
 TRAIN_TFRECORD_FILEPATTERN = TRAIN_TFRECORD + '*'
 
 # Make a new dataset.
