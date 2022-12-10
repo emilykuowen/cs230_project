@@ -7,43 +7,35 @@ import numpy as np
 
 # os.system("pip install -qU ddsp[data_preparation]==1.6.3")
 
-instrument = 'drums'
+instrument = 'bass'
 
 # Make directories to save model and data
-DRIVE_DIR = '../data/musdb18/train/' + instrument
-AUDIO_DIR = '../data/musdb18/tf_audio/' + instrument
-# DRIVE_DIR = '../../data/medleydb_' + instrument + '/' + instrument
-# AUDIO_DIR = '../../data/medleydb_' + instrument + '/tfaudio'
+# DRIVE_DIR = '../data/musdb18/train/' + instrument
+# AUDIO_DIR = '../data/musdb18/tf_audio/' + instrument
+DRIVE_DIR = '../../data/medleydb_' + instrument + '/' + instrument
+AUDIO_DIR = '../../data/medleydb_' + instrument + '/tfaudio'
 AUDIO_FILEPATTERN = AUDIO_DIR + '/*'
 os.system("mkdir -p " + AUDIO_DIR)
 # SAVE_DIR = os.path.join(DRIVE_DIR, 'ddsp')
-SAVE_DIR = os.path.join('models/', instrument)
+SAVE_DIR = os.path.join('models/', instrument, '_medleydb')
 os.system("mkdir -p " + SAVE_DIR)
 
 mp3_files = glob.glob(os.path.join(DRIVE_DIR, '*.mp3'))
 wav_files = glob.glob(os.path.join(DRIVE_DIR, '*.wav'))
 audio_files = mp3_files + wav_files
 
-for fname in audio_files:
-  target_name = os.path.join(AUDIO_DIR, os.path.basename(fname).replace(' ', '_'))
-  print('Copying {} to {}'.format(fname, target_name))
-  cp_command = "cp \"" + fname + "\" " + target_name
-  os.system(cp_command)
-
+for i in range(0, 6):
+    fname = audio_files[i]
+    target_name = os.path.join(AUDIO_DIR, os.path.basename(fname).replace(' ', '_'))
+    print('Copying {} to {}'.format(fname, target_name))
+    cp_command = "cp \"" + fname + "\" " + target_name
+    os.system(cp_command)
 
 # Preprocess raw audio into TFRecord dataset
-TRAIN_TFRECORD = 'data/' + instrument + '/train.tfrecord'
-os.system("mkdir -p data/" + instrument)
+os.system("mkdir -p data/" + instrument + '_medleydb')
+TRAIN_TFRECORD = 'data/' + instrument + '_medleydb/train.tfrecord'
 # TRAIN_TFRECORD = '../../data/' + 'medleydb_' + instrument + '/tfrecord/train.tfrecord'
 TRAIN_TFRECORD_FILEPATTERN = TRAIN_TFRECORD + '*'
-
-# # Copy dataset from drive if dataset has already been created.
-# drive_data_dir = os.path.join(DRIVE_DIR, 'data')
-# drive_dataset_files = glob.glob(drive_data_dir + '/*')
-
-# if DRIVE_DIR and len(drive_dataset_files) > 0:
-#     os.system("cp " + drive_data_dir + "/* data/" + instrument)
-# else:
 
 # Make a new dataset.
 if not glob.glob(AUDIO_FILEPATTERN):
@@ -61,7 +53,6 @@ os.system(ddsp_prepare_tfrecord_command)
 #     os.system("mkdir " + drive_data_dir)
 #     print('Saving to {}'.format(drive_data_dir))
 #     os.system("cp " + TRAIN_TFRECORD_FILEPATTERN + " \"" + drive_data_dir + "\"/")
-
 
 data_provider = ddsp.training.data.TFRecordProvider(TRAIN_TFRECORD_FILEPATTERN)
 dataset = data_provider.get_dataset(shuffle=False)
