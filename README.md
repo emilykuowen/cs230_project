@@ -1,4 +1,4 @@
-# CS230 DDSP Music Source Separation Project
+# CS230 Project - Music Source Separation with DDSP
 Group Members: Emily Kuo, Samantha Long, Sneha Shah
 
 ## Description
