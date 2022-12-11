@@ -70,11 +70,10 @@ To train a DDSP model on a new instrument using your own data, follow these step
 ```bash
 cd ddsp
 ```
-3. Generate the tfrecord files that correspond to your own data:
+3. Generate the tfrecord files that correspond to your own data. The tfrecord files will be stored in `ddsp/data/"instrument"`.
 ```bash
 python3 generate_ddsp_tfrecord.py
 ```
-The tfrecord files will be stored in `ddsp/data/"instrument"`.
 4. Run DDSP training by the following terminal command
 ```bash
 ddsp_run \
