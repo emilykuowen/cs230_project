@@ -119,7 +119,7 @@ python3 timbre_transfer.py
 All the model training code are stored in the `model/` folder. 
 
 Before training a model, you will need to make the following changes in your local `nussl` library:
-1. Run the following command in your terminal. If it cannot find nussl, check above to install the requirements.
+1. Run the following command in your terminal. If it cannot find `nussl`, check above to install the requirements.
 ```bash
 python -m pip show nussl
 ```
@@ -140,14 +140,16 @@ model.load_state_dict(model_dict['state_dict'], strict=False)
 ```
 4. You're all set to train the source separation model!
 
-Example command to train a bass separator model with conditioning:
+### Example
+To train a bass separator model with conditioning:
+1. Specify hyperparameters (`batch_size`, `max_epochs`, and `epoch_length`) in the `train()` function on line 267.
+2. Run the following terminal commands
 ```bash
 # switch into the model directory
 cd model
-# run a model of your choice
 python3 bass_separator_with_conditioning.py
 ```
-- Running this command would create a subfolder `bass_output_with_conditioning/`, which contains all of the model checkpoints, audio output files, and .json files that record the model evaluation results. All of the `nussl` evaluation metrics will be printed in the terminal as well.
+- This would create a subfolder `bass_output_with_conditioning/`, which contains all of the model checkpoints, audio output files, and .json files that record the model evaluation results. All of the `nussl` evaluation metrics will be printed in the terminal as well.
 
 
 ## Useful Commands
