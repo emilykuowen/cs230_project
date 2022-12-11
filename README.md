@@ -27,14 +27,13 @@ conda install -c conda-forge ffmpeg
 ```
 
 
-## Usage
-### Data
+## Data
 We mainly use two existing datasets, [MUSDB18](https://zenodo.org/record/1117372#.Y5Pfv-zMLdo) and [MedleyDB](https://medleydb.weebly.com/), to train our music source separation model.
-#### MUSDB18
+### MUSDB18
 [MUSDB18](https://zenodo.org/record/1117372#.Y5Pfv-zMLdo) includes 10 hours of 150 full length musical tracks of different genres along with their isolated drums, bass, vocals, and other categories of stems.
 - MUSDB18 is downloaded by the libraries [common](https://github.com/source-separation/tutorial/tree/master/common) and [nussl](https://github.com/nussl/nussl). In the main function of model files like `model/bass_separator.py`, the function `data.prepare_musdb(dataset_path)` downloads 7-second segments of the MUSDB18 dataset and the function `nussl.datasets.MUSDB18(subsets=['test'], transform=tfm)` allows you to access a specific subset.
 
-#### MedleyDB
+### MedleyDB
 [MedleyDB](https://medleydb.weebly.com/) 1.0 and 2.0 contain 196 total multi-tracks with mixed and processed stems along with raw audio with annotations and metadata. Unlike MUSDB18 that has fixed instrument stems for each track, MedleyDB has different instrument stems for each track. Thus, in order to extract tracks that contain the instrument we'd like to separate, we wrote `medley_proprocess.py`, which you can run to extract instrument stems from the dataset.
 
 We've processed the MedleyDB dataset to extract the following instruments: acoustic guitar, bass, flute, piano, and violin. If you'd like to download them, you can run the commands below (beware of the large file sizes):
@@ -60,7 +59,7 @@ If you'd like to extract stems of other instruments in MedleyDB, you can follow 
 4. Run `python data/medley_preprocess.py`
 
 
-### DDSP Training
+## DDSP Training
 We used the [DDSP](https://github.com/magenta/ddsp) model to produce the conditioning input for our model. We define the conditioning input as the harmonic distribution of the instrument we want to separate. For example, to generate the conditioning input of a bass separator, we would run a single-note bass audio file through a DDSP model pretrained on bass sounds to get the harmonic distrbution of bass.
 
 We've previously trained DDSP models and generated conditioning inputs for bass, vocals, and drums. Those conditioning inputs are stored as `.npy` files in the folder `ddsp/harmonic_distribution_output/`.
@@ -113,11 +112,11 @@ Then, to get the harmonic distribution output from a DDSP model, follow these st
 ```bash
 python3 timbre_transfer.py
 ```
-3. Check the `ddsp/timbre_transfer_output/` folder to hear how good your DDSP model performs.
+3. Check the .wav files in `ddsp/timbre_transfer_output/` folder to hear how good your DDSP model performs.
 4. The harmonic distribution features will be saved as a `.npy` file in the folder `ddsp/harmonic_distribution_output/`, which you can later retrieve by running the function `np.load(filepath)`.
 
 
-### Source Separation Model Training
+## Source Separation Model Training
 All the model training code are stored in the `model/` folder. 
 
 Before training a model, you will need to make the following changes in your local `nussl` library:
@@ -152,7 +151,7 @@ python3 bass_separator_with_conditioning.py
 - Running this command would create a subfolder `bass_output_with_conditioning/`, which contains all of the model checkpoints, audio output files, and .json files that record the model evaluation results. All of the `nussl` evaluation metrics will be printed in the terminal as well.
 
 
-### Useful Commands
+## Useful Commands
 To ssh into the AWS instance:
 ```bash
 ssh -i "~/.ssh/cs230.pem" ubuntu@ec2-54-149-20-20.us-west-2.compute.amazonaws.com
