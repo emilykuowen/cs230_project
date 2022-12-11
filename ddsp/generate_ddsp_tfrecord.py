@@ -76,8 +76,7 @@ ax[2].plot(x, ex['f0_confidence'])
 plt.savefig('tfaudio_features.png')
 
 """
-Run the following command in terminal:
-
+Run the following command in terminal to start DDSP training:
 ddsp_run \
   --mode=train \
   --alsologtostderr \
